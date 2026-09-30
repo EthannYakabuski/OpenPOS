@@ -1,0 +1,34 @@
+appId: org.openpos.desktop
+productName: OpenPOS
+copyright: Copyright © 2026 OpenPOS contributors
+directories:
+  output: release
+  buildResources: assets
+files:
+  - dist/**/*
+  - package.json
+  - LICENSE
+  - '!**/*.map'
+  - '!node_modules/**/*'
+asar: true
+extraResources:
+  - from: assets/THIRD-PARTY-NOTICES.txt
+    to: THIRD-PARTY-NOTICES.txt
+win:
+  target:
+    - target: nsis
+      arch: [x64]
+  icon: assets/icon.ico
+  artifactName: OpenPOS-${version}-Setup-${arch}.${ext}
+nsis:
+  oneClick: false
+  perMachine: true
+  allowToChangeInstallationDirectory: true
+  allowElevation: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: OpenPOS
+  uninstallDisplayName: OpenPOS
+  deleteAppDataOnUninstall: false
+  license: LICENSE
+  include: scripts/installer.nsh

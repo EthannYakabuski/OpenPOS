@@ -1,0 +1,13 @@
+node_modules
+.tools
+.cache
+.dev-data
+.test-data
+dist
+release
+coverage
+test-results
+playwright-report
+yarn.lock
+LICENSE
+docs/project-brief.md

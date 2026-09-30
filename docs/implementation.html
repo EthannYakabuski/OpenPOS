@@ -1,0 +1,423 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>OpenPOS · Implementation decisions</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header>
+      <p class="eyebrow">OpenPOS · Engineering reference · Source only</p>
+      <h1>Decisions you can inspect.</h1>
+      <p>
+        How the acceptance criteria became concrete behavior, where ambiguities were resolved, and
+        which boundaries matter before a real deployment.
+      </p>
+    </header>
+    <nav class="topnav" aria-label="Documentation">
+      <a href="../README.md">README</a><a href="architecture.html">Architecture</a
+      ><a href="implementation.html" aria-current="page">Implementation decisions</a
+      ><a href="acceptance.html">Acceptance map</a><a href="help.html">Business handbook</a
+      ><a href="sales.html">Product overview</a>
+    </nav>
+    <div class="wrap layout">
+      <aside class="toc" aria-label="Contents">
+        <strong>Decisions</strong><a href="#scope">Product scope</a
+        ><a href="#money">Money and tax</a><a href="#orders">Orders and inventory</a
+        ><a href="#storage">Files and durability</a><a href="#sync">Master and client</a
+        ><a href="#security">Security and access</a
+        ><a href="#experience">Experience and packaging</a
+        ><a href="#validation">Validation strategy</a><a href="#limitations">Known limits</a>
+      </aside>
+      <main>
+        <section id="scope">
+          <h2>Product scope</h2>
+          <p>
+            OpenPOS is a local Windows order-entry and sales-record application for a small shop,
+            with a configurable catalog and optional kitchen clients. The first release supports a
+            pizza shop and ordinary retail items in the same menu. The requested stack is preserved:
+            TypeScript, React, Electron, Webpack, Yarn, JSON business files, NDJSON logs and an NSIS
+            Windows installer.
+          </p>
+          <p>
+            The word “POS” does not imply payment processing. There is no integrated tender capture,
+            card terminal, processor settlement, cash drawer protocol, accounting certification or
+            proof-of-payment workflow. Receipts describe orders and totals. These exclusions are
+            visible in the business handbook and product overview.
+          </p>
+          <p>
+            Windows 10 x64 and newer are the target platform. Node is a development dependency, not
+            something end users need to install for a packaged Electron application. A working
+            product should be verified on the intended Windows devices, printers and private network
+            before live use.
+          </p>
+        </section>
+        <section id="money">
+          <h2>Money and tax</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Decision</th>
+                  <th>Behavior and reason</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Integer minor units</td>
+                  <td>
+                    Persist prices and totals as integer cents. The UI accepts normal decimal prices
+                    and converts at the boundary. This avoids accumulated binary floating-point
+                    errors for ordinary two-decimal currencies.
+                  </td>
+                </tr>
+                <tr>
+                  <td>One configured tax percentage</td>
+                  <td>
+                    <code>13</code> means 13%, not 0.13. Compute tax on item subtotal plus taxable
+                    selected fees and round once to the nearest cent.
+                  </td>
+                </tr>
+                <tr>
+                  <td>Explicit fee selection</td>
+                  <td>
+                    Fees are reusable named configuration entries with an amount and taxable flag.
+                    Staff select applicable fees per order; fulfillment does not silently add a
+                    surcharge.
+                  </td>
+                </tr>
+                <tr>
+                  <td>Full variant prices</td>
+                  <td>
+                    A variant’s price is its full selling price. It does not add to the base price.
+                  </td>
+                </tr>
+                <tr>
+                  <td>Historical snapshots</td>
+                  <td>
+                    Order lines copy the selected name, unit price and recipe. Orders also store
+                    their selected fees and tax context. A later menu edit does not alter already
+                    saved order lines.
+                  </td>
+                </tr>
+                <tr>
+                  <td>Gross has a precise meaning</td>
+                  <td>
+                    Audit gross is the total of completed orders, including fees and tax. Item
+                    revenue excludes fees and tax. Cancelled and unfinished orders are excluded from
+                    completed sales. Sales use completion dates; stock uses movement dates. Date
+                    boundaries use the authoritative standalone/master computer’s local timezone.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p>
+            Supported currencies are CAD, USD, EUR, GBP, AUD and NZD. Changing currency is blocked
+            while any order history exists, because relabeling saved nominal amounts would
+            misrepresent the records. Choose currency after Start fresh clears demo orders and
+            before recording real sales. No currency conversion is performed. Zero-decimal and
+            three-decimal currency rules, multiple tax rates, per-product tax exemptions, inclusive
+            tax, discounts, tipping and refunds require explicit extensions rather than being
+            inferred from the first release.
+          </p>
+        </section>
+        <section id="orders">
+          <h2>Orders and inventory</h2>
+          <h3>Completion is the stock boundary</h3>
+          <p>
+            The inventory requirement ended mid-sentence in section A; the surrounding acceptance
+            criteria make completion the consistent deduction point. Saving an in-progress order
+            does not consume stock. Completing an order consumes its snapshotted recipe.
+            Auto-complete executes the same transition immediately.
+          </p>
+          <p>
+            Completed-order editing would otherwise double-deduct stock or lose the old consumption.
+            The implementation compares previous and new consumption and records the delta.
+            Cancellation is an added correction workflow: it preserves the order, excludes it from
+            current sales totals and reverses recorded consumption.
+          </p>
+          <h3>Variant recipe overrides and inheritance</h3>
+          <p>
+            A nonempty variant recipe is its complete recipe, not an addition to the base recipe. An
+            empty variant recipe inherits the base recipe. This lets common ingredient consumption
+            be defined once, with explicit overrides for different sizes. For an untracked variant
+            alongside tracked variants, leave the base recipe empty and define each tracked option
+            explicitly. Basic retail items use one recipe component with quantity 1.
+          </p>
+          <h3>Snapshot before catalog changes</h3>
+          <p>
+            The sale captures its selected product information. Otherwise changing a pizza recipe
+            tomorrow could alter the stock calculation for an order entered today. Existing order
+            lines keep their snapshots during edits; newly selected items use the current catalog.
+          </p>
+          <h3>Negative inventory is allowed</h3>
+          <p>
+            Stock can go below zero and low-stock thresholds provide visibility. Blocking a customer
+            order because of an unrecorded stock delivery would be disruptive. The tradeoff is that
+            stock is an operational estimate requiring reconciliation, not a guaranteed availability
+            reservation.
+          </p>
+          <h3>No stock reservation</h3>
+          <p>
+            In-progress orders do not reserve ingredients. Cancellation assumes returned inventory
+            unless the operator records a separate stock adjustment; waste and preparation yield are
+            not inferred. Each completed order records whether inventory was enabled at its
+            completion, so toggling the setting later does not retroactively invent or discard
+            historical consumption.
+          </p>
+        </section>
+        <section id="storage">
+          <h2>Files and durability</h2>
+          <p>
+            Shared files are <code>menu.json</code>, <code>inventory.json</code>,
+            <code>orders.json</code>, <code>config.json</code> and <code>movements.json</code>.
+            Local device and password data are kept separately. <code>metadata.json</code> tracks
+            schema/revision; <code>transaction.json</code> carries pending recovery.
+            <code>client-cache.json</code> stores a client’s last accepted master snapshot, separate
+            from its standalone data. <code>instance.lock</code> prevents two processes opening the
+            same folder. Business events use <code>events.ndjson</code>; desktop diagnostics use
+            <code>logs/application.ndjson</code>.
+          </p>
+          <h3>Serialized, recoverable writes</h3>
+          <p>
+            A business mutation can change an order, inventory quantities and movement history
+            together. The store serializes updates and uses an application-managed recovery
+            transaction around its multi-file writes. Recovery is completed before normal operation
+            resumes. Individual files remain readable JSON. A failed write disables further
+            mutations until restart recovery. A repeated order-creation request carries a stable ID
+            to avoid creating a duplicate after a retry.
+          </p>
+          <h3>Manual changes are untrusted input</h3>
+          <p>
+            The menu file is watched, parsed and validated before adoption. Malformed or conflicting
+            edits are preserved under backups, rejected with a warning, and leave the last accepted
+            state in memory. Menu editing is the supported hot-reload use case; other JSON files are
+            not live-edit interfaces. Routine order and stock changes should use application
+            commands so revisions, totals and movement history stay coherent.
+          </p>
+          <h3>Per-machine install, per-user data</h3>
+          <p>
+            The installer is per machine, but the explicitly requested
+            <code>.openpos</code> directory is under the current user’s profile. Creating it on
+            first application launch avoids placing the data in an administrator account used for
+            installation. Two Windows users on one physical computer therefore have separate data,
+            passwords and device settings.
+          </p>
+          <h3>Demo and production separation</h3>
+          <p>
+            A new store is seeded with mixed pizza and retail data, inventory and
+            completed/in-progress orders. Development runs use a repository-local
+            <code>.dev-data</code> directory so development does not modify the ordinary shop
+            folder. The administrative <strong>Start fresh</strong> workflow creates a backup,
+            removes sample orders and movement history, and sets inventory balances to zero while
+            preserving the catalog and business configuration. It requires the explicit phrase
+            <code>START FRESH</code>.
+          </p>
+          <p>
+            This is also a destructive live-shop action if used after real trading. The explicit
+            confirmation and automatic backup make its consequences reviewable; it is not performed
+            silently on installation or update. Business backup exports omit local device/auth files
+            and have no one-click restore UI; a complete closed-app folder backup is the documented
+            full-device recovery method.
+          </p>
+        </section>
+        <section id="sync">
+          <h2>One authoritative master</h2>
+          <p>
+            The requested ability for every device to edit an order is compatible with a single
+            authority. Each client submits commands to the master; the master validates, saves and
+            distributes authoritative state. Clients do not independently merge file copies. This
+            gives the kitchen editing access without a multi-master conflict algorithm.
+          </p>
+          <ul>
+            <li>
+              <strong>Three device roles:</strong> standalone, master and client. The same binary
+              serves all roles.
+            </li>
+            <li>
+              <strong>Explicit client registration:</strong> the master stores permitted client
+              identifiers. A shared sync secret authenticates requests.
+            </li>
+            <li>
+              <strong>Signed communication:</strong> HMAC signatures authenticate requests and
+              responses. Timestamps within 60 seconds and unique nonces guard against
+              straightforward request replay.
+            </li>
+            <li>
+              <strong>Conflict detection:</strong> expected revisions reject edits made against
+              stale state. Staff reopen the updated record and retry deliberately.
+            </li>
+            <li>
+              <strong>Refresh protocol:</strong> clients poll each second with their known revision.
+              Unchanged state returns a small acknowledgement; changed state returns an
+              authoritative snapshot. Request bodies are limited to 2 MB and responses to 64 MB.
+            </li>
+            <li>
+              <strong>No offline writes:</strong> when the master is unavailable, a client cannot
+              commit changes. Offline queues and automatic conflict resolution are deliberately
+              excluded.
+            </li>
+            <li>
+              <strong>Device-local preferences:</strong> the default tab, role, connection details
+              and local administrator session are not business data replicated from the master.
+            </li>
+          </ul>
+          <p>
+            The master must have a configured administrator password before hosting sync. LAN
+            requests use HTTP, not TLS. Message authentication does not hide menu, order or customer
+            information from someone observing the network. Use a trusted private network and no
+            direct internet port forwarding.
+          </p>
+          <p>
+            A shared key identifies a trusted installed client, not an individual employee. Anyone
+            with access to a device’s files or sync key sits outside the application’s UI-only
+            access boundary. Individual staff identities, central permissions and cryptographic
+            audit trails are future architecture work.
+          </p>
+        </section>
+        <section id="security">
+          <h2>Desktop and administrator boundaries</h2>
+          <p>
+            The renderer runs with context isolation and without Node integration. The preload
+            bridge exposes a small typed API instead of arbitrary IPC or filesystem access. Business
+            input is validated again where trusted operations occur; a form’s HTML validation alone
+            is not a sufficient boundary.
+          </p>
+          <p>
+            The local administrator password is stored as a salted scrypt hash. A fresh standalone
+            instance has setup access until its first password is set. The unlocked session is held
+            in memory; locking or restarting revokes it once a password exists. Audit and
+            administrative mutations are protected beyond simply hiding their buttons. Staff may
+            still create, edit, complete and cancel orders.
+          </p>
+          <p>
+            A connected client verifies the master’s administrator password and receives a
+            client-bound token with an eight-hour expiry. Locking, a password change, or a master
+            restart invalidates it. The client’s retained local installation password can unlock
+            connection repair while disconnected, but cannot authorize offline business mutations or
+            bypass the master. Because HTTP is unencrypted, the unlock password must be used only on
+            a trusted private network.
+          </p>
+          <p>
+            This interpretation resolves the installation criterion about hiding Audit in the
+            kitchen: administrator access is enabled by unlocking that device. It is not a
+            persistent global setting that unlocks all clients at once. There is no permanent
+            employee account database or per-user permission matrix.
+          </p>
+          <p>
+            Local JSON files and exports are not encrypted. Protect access with Windows accounts and
+            disk encryption where appropriate. Backups contain business and possibly customer data.
+            Diagnostic logging should avoid passwords and sync secrets.
+          </p>
+        </section>
+        <section id="experience">
+          <h2>Interface and distribution</h2>
+          <p>
+            The visual design prioritizes a calm, high-contrast work surface, large touch targets,
+            readable prices, clear order status and fast category selection. Material Design Icons
+            cover standard actions. A small repository-native vector mark provides app identity
+            without adding a remote-image dependency.
+          </p>
+          <p>
+            The primary workspace has a wide menu pane and a narrower current-order pane. Menu
+            Items, Orders and Audit are top-level navigation destinations. Administrative dialogs
+            share create/edit fields so catalog changes appear immediately and users do not need to
+            learn separate maintenance paths.
+          </p>
+          <p>
+            Help is a self-contained HTML handbook with local styling, opened in the user’s default
+            browser. Architecture, decisions, acceptance mapping, sales collateral and the preserved
+            request remain source-only. No network font or CDN stylesheet is required.
+          </p>
+          <p>
+            NSIS packaging creates a Windows x64 installer with desktop and Start menu shortcuts.
+            The application creates its data directory at runtime. Code signing is not configured by
+            default; distribution owners must supply their own signing credentials and perform
+            platform release checks.
+          </p>
+        </section>
+        <section id="validation">
+          <h2>Validation strategy</h2>
+          <p>
+            Verification is layered around behavior that matters: money rounding, fees and taxes;
+            required field validation; variant pricing; order lifecycle; edit/cancel stock
+            adjustments; report aggregation; JSON reload and recovery; admin protection; and
+            master/client propagation and conflict handling. Renderer checks exercise representative
+            user workflows in the actual Electron app.
+          </p>
+          <p>
+            <code>yarn typecheck</code> checks the shared contracts and process boundaries.
+            <code>yarn test</code> runs unit and integration checks.
+            <code>yarn test:e2e</code> checks the desktop workflow. <code>yarn build</code> verifies
+            compilation and resource copying, while <code>yarn dist</code> exercises installer
+            generation. See the repository test output for executed results; this document describes
+            the required strategy rather than pretending every future machine is validated.
+          </p>
+          <div class="callout">
+            <strong>Release verification still belongs on the target hardware.</strong>
+            <p>
+              Exercise installation and upgrade with a standard Windows account, touch input on the
+              target tablet, the actual receipt printer, two physical devices and the intended
+              private firewall rules. Keep a recoverable backup before testing upgrades against live
+              data.
+            </p>
+          </div>
+        </section>
+        <section id="limitations">
+          <h2>Known boundaries and useful next steps</h2>
+          <ul>
+            <li>
+              <strong>Operational capacity:</strong> JSON snapshots and one master suit small shops.
+              The Orders screen renders the first 50 matching cards per status, with controls to
+              load another 50. Counts and filters still cover the full in-memory order collection;
+              this bounds initial card rendering rather than changing the persistence architecture.
+              No large-business concurrency or dataset-size benchmark is claimed. Local JSON files
+              are limited to 64 MB each; finite row limits also apply. Add database-backed
+              persistence and measured performance targets before promising high-volume
+              multi-location operation.
+            </li>
+            <li>
+              <strong>Resilience:</strong> the master is a dependency for clients. There is no
+              automatic failover or offline order reconciliation.
+            </li>
+            <li>
+              <strong>Financial scope:</strong> no payment processing, cash tender/change workflow,
+              processor refunds, fiscal-device integration, tax certification or accounting export
+              contract.
+            </li>
+            <li>
+              <strong>Retail scope:</strong> no barcode scanner-specific integration, weighted scale
+              integration, loyalty program or customer account balances.
+            </li>
+            <li>
+              <strong>Restaurant scope:</strong> no table map, split bill, tipping, course timing,
+              delivery dispatch or third-party delivery integration.
+            </li>
+            <li>
+              <strong>Inventory scope:</strong> no reservation, recipe cost accounting, supplier
+              purchasing, expiry management or formal waste ledger.
+            </li>
+            <li>
+              <strong>Security scope:</strong> no TLS configuration, user-by-user roles, encrypted
+              local data or tamper-proof audit trail.
+            </li>
+            <li>
+              <strong>Distribution scope:</strong> no invented public download, automatic updater or
+              preconfigured signing certificate. Build the installer locally and publish through the
+              project’s chosen release process.
+            </li>
+          </ul>
+          <p>
+            These boundaries do not alter the implemented acceptance criteria. They make the first
+            version’s operational model explicit and keep the sales material honest.
+          </p>
+        </section>
+      </main>
+    </div>
+    <footer>
+      OpenPOS · Source-only implementation decisions · Initial implementation: September 2026
+    </footer>
+  </body>
+</html>

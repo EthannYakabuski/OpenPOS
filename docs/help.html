@@ -1,0 +1,739 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>OpenPOS · Business handbook</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header>
+      <p class="eyebrow">OpenPOS · Business handbook</p>
+      <h1>From the first order<br />to the last pickup.</h1>
+      <p>
+        A practical guide for owners, cashiers and kitchen teams. Take orders, keep the kitchen
+        informed and understand the day’s sales.
+      </p>
+    </header>
+    <nav class="topnav" aria-label="Quick links">
+      <a href="#quick-start">Quick start</a><a href="#orders">Orders</a><a href="#menu">Your menu</a
+      ><a href="#inventory">Stock</a><a href="#network">Connect a kitchen</a
+      ><a href="#troubleshooting">Troubleshooting</a>
+    </nav>
+    <div class="wrap layout">
+      <aside class="toc" aria-label="Contents">
+        <strong>In this guide</strong><a href="#quick-start">1. Get started</a
+        ><a href="#orders">2. Take and manage orders</a><a href="#receipts">3. Receipts</a
+        ><a href="#menu">4. Build your menu</a><a href="#inventory">5. Track inventory</a
+        ><a href="#settings">6. Configure your business</a
+        ><a href="#admin">7. Administrator access</a><a href="#audit">8. Understand your sales</a
+        ><a href="#network">9. Connect devices</a><a href="#data">10. Data and backups</a
+        ><a href="#manual-json">11. Edit menu JSON</a><a href="#troubleshooting">12. Get unstuck</a>
+      </aside>
+      <main>
+        <section id="quick-start">
+          <h2>1. Get started</h2>
+          <p class="lead">
+            OpenPOS runs on Windows 10 or newer, on a 64-bit computer or tablet. Large controls work
+            with either a tap or a mouse click.
+          </p>
+          <div class="cards two">
+            <div class="card">
+              <div class="number">At the counter</div>
+              <h3>Menu Items</h3>
+              <p>
+                Find an item on the left. Build the current order on the right. The running total
+                includes your selected fees and tax.
+              </p>
+            </div>
+            <div class="card">
+              <div class="number">In the kitchen</div>
+              <h3>Orders</h3>
+              <p>
+                See work in progress, mark an order completed, and look up finished orders when a
+                customer calls back.
+              </p>
+            </div>
+          </div>
+          <h3 class="step-title"><span>1</span>Install and open</h3>
+          <p>
+            Run the OpenPOS Windows installer. Installation is for the computer and may request
+            Windows administrator approval. Open OpenPOS from the desktop or Start menu shortcut.
+            Each Windows account has its own data folder.
+          </p>
+          <h3 class="step-title"><span>2</span>Explore the sample shop</h3>
+          <p>
+            A new data folder starts with a demonstration pizza shop: pizza sizes and ingredients,
+            simple retail items such as Snickers and canned Pepsi, available stock, and sample
+            orders in different states. These are sample sales and sample quantities. They are not
+            your business records.
+          </p>
+          <h3 class="step-title"><span>3</span>Set up your business</h3>
+          <p>
+            Open <strong>Configuration → Security</strong> and set an administrator password. A
+            fresh demo has administrator controls open until you set one. In
+            <strong>Business</strong>, set your business name, tax rate, fees and inventory
+            preference. In <strong>This device</strong>, set the starting tab. To use a different
+            currency, use Start fresh first so no order history remains, then choose the currency
+            before entering real sales. Follow the menu and inventory sections below to enter your
+            real products and opening stock.
+          </p>
+          <div class="callout amber">
+            <strong>Before a real trading day</strong>
+            <p>
+              Use a separate data folder for trials and real operation. See
+              <a href="#data">Starting with an empty shop</a> before recording real sales. Check
+              your tax settings, printed receipt and stock quantities with a small test order.
+              OpenPOS records orders; it does not process card payments or verify that money has
+              been received.
+            </p>
+          </div>
+        </section>
+        <section id="orders">
+          <h2>2. Take and manage orders</h2>
+          <h3>Create an order</h3>
+          <ol>
+            <li>
+              Open <strong>Menu Items</strong>. Use search or the category controls to find a
+              product.
+            </li>
+            <li>
+              Tap the product. If it offers sizes or types, choose the correct option and price.
+            </li>
+            <li>
+              Check the items in the right-hand order panel. Change quantities or remove an item as
+              needed.
+            </li>
+            <li>
+              Choose takeout, delivery or dine-in. Enter the customer name, phone number, delivery
+              address and any useful preparation or delivery notes.
+            </li>
+            <li>
+              Select any applicable fees, such as delivery. Fees are optional selections; choosing a
+              delivery order does not by itself imply every configured fee should be charged.
+            </li>
+            <li>
+              Review the subtotal, fees, tax and total. Select <strong>Order</strong> to save the
+              order and make its receipt available.
+            </li>
+          </ol>
+          <p>
+            A newly saved order normally appears under <strong>In progress</strong> on the
+            <strong>Orders</strong> tab. With <strong>Auto Complete Orders</strong> enabled, it goes
+            directly to <strong>Completed</strong>.
+          </p>
+          <h3>Complete kitchen work</h3>
+          <p>
+            On <strong>Orders</strong>, find the order and choose <strong>Completed</strong>. When
+            inventory tracking is enabled, this is when the order’s recorded ingredients are
+            deducted. Connected devices receive the updated order.
+          </p>
+          <h3>Correct an existing order</h3>
+          <p>
+            Use Search orders or Order date to find a ticket. Each section initially shows up to 50
+            matching orders, newest first. Its count includes every matching order. Choose
+            <strong>Load more</strong> below a long list to reveal the next group. Changing the
+            search, date or Show cancelled option returns each section to its first group.
+          </p>
+          <p>
+            Select an order’s edit action. Its contents return to the order panel. Make the
+            correction, then save the edited order. Both in-progress and completed orders can be
+            edited. The order keeps its identity and its totals are recalculated.
+          </p>
+          <p>
+            Editing a completed order also adjusts stock for the difference between its old and new
+            ingredients. For example, changing two cans of Pepsi to three deducts one additional
+            can. Existing lines retain their recorded unit prices and ingredients; changing the menu
+            later does not rewrite old receipts.
+          </p>
+          <h3>Cancel instead of deleting</h3>
+          <p>
+            Use the order’s cancel action when it should no longer count as a sale. The order
+            remains recorded. Cancellation of a completed order restores its recorded inventory
+            consumption. This reverses the stock record, so a manager should separately account for
+            food that was actually used or wasted.
+          </p>
+          <div class="callout">
+            <strong>Someone else changed this order?</strong>
+            <p>
+              If another device saves first, OpenPOS rejects an out-of-date edit instead of silently
+              replacing the newer version. Reopen the latest order and apply your change again.
+            </p>
+          </div>
+        </section>
+        <section id="receipts">
+          <h2>3. Receipts</h2>
+          <p>
+            Each saved order has a printable receipt showing the business name, order information,
+            item quantities and prices, selected fees, tax and total. Use its receipt action to open
+            the printer workflow. Select the correct printer in Windows and check the first printed
+            result before service.
+          </p>
+          <p>
+            The receipt records the order total. It is not proof that an external card terminal or
+            cash transaction has succeeded. OpenPOS does not capture card details, settle payments,
+            control a cash drawer or reconcile payment-provider transactions.
+          </p>
+        </section>
+        <section id="menu">
+          <h2>4. Build your menu</h2>
+          <p>
+            Open <strong>Add item</strong> in the toolbar to create an item in the
+            <strong>Add menu item</strong> dialog, or choose the pencil on an existing menu card to
+            edit it. Saving makes the item available immediately, without restarting the
+            application.
+          </p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Field</th>
+                  <th>How to use it</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Name and category</td>
+                  <td>
+                    Choose a clear name and a useful grouping, such as Pizza, Drinks or Snacks.
+                  </td>
+                </tr>
+                <tr>
+                  <td>Description</td>
+                  <td>Add a short explanation employees can use while taking orders.</td>
+                </tr>
+                <tr>
+                  <td>Price</td>
+                  <td>
+                    Enter the selling price in normal currency units in the dialog, for example
+                    2.50.
+                  </td>
+                </tr>
+                <tr>
+                  <td>Sizes / types</td>
+                  <td>
+                    Add named variants with their own full selling prices. A Large pizza price is
+                    its total price, not an extra amount added to a base price.
+                  </td>
+                </tr>
+                <tr>
+                  <td>Inventory recipe</td>
+                  <td>
+                    Optionally select each stock item and the quantity consumed by one sale. See the
+                    stock section below.
+                  </td>
+                </tr>
+                <tr>
+                  <td>Active</td>
+                  <td>
+                    Keep an item active while it is offered. Deactivate a discontinued item instead
+                    of changing historical orders.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <h3>Separate products or one product with sizes?</h3>
+          <p>
+            Either approach works. You can create three cards named Small Coke, Medium Coke and
+            Large Coke. Or create one Coke card with Small, Medium and Large variants. Use separate
+            cards when speed matters more than saving space, and variants when a menu has many
+            choices.
+          </p>
+          <h3>Recipes for variants</h3>
+          <p>
+            A variant’s nonempty recipe replaces the base recipe. Enter the full consumption for
+            that size or type, not just the difference from the base product. Leave the variant
+            recipe empty to use the base recipe. A large pizza might consume one large dough ball,
+            0.18 kg cheese and 0.12 litres sauce. Use units consistently with the inventory records.
+            For an untracked option alongside tracked options, leave the base recipe empty and give
+            only the tracked options their own recipes.
+          </p>
+        </section>
+        <section id="inventory">
+          <h2>5. Track inventory</h2>
+          <p>
+            Inventory is optional. Enable it in <strong>Configuration</strong> to track stock
+            consumed by completed orders. A product without a recipe can still be sold.
+          </p>
+          <h3>Create your stock list</h3>
+          <ol>
+            <li>
+              Unlock administrator access and open <strong>Inventory</strong> from the toolbar.
+            </li>
+            <li>
+              Choose <strong>New item</strong> and enter Item name, Unit, Quantity on hand and Low
+              stock alert at. Examples: Canned Pepsi / cans / 24, or Mozzarella / kg / 10.
+            </li>
+            <li>
+              Edit the corresponding menu item and add the stock item to its recipe. A canned Pepsi
+              consumes 1 can. A burger consumes 1 beef burger; it may also consume 1 bun.
+            </li>
+          </ol>
+          <h3>Receive a purchase</h3>
+          <p>
+            Open <strong>Inventory</strong>, choose the stock item and choose
+            <strong>Receive</strong>. Enter the <em>amount being added</em> and a useful note, such
+            as “Supplier delivery”. Select <strong>Receive stock</strong> to save. Receiving 12
+            burgers adds 12 to the stock already on hand.
+          </p>
+          <h3>When stock moves</h3>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Action</th>
+                  <th>Stock effect</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Create an in-progress order</td>
+                  <td>No deduction yet.</td>
+                </tr>
+                <tr>
+                  <td>Complete an order</td>
+                  <td>Deduct its recorded recipe once.</td>
+                </tr>
+                <tr>
+                  <td>Auto-complete a new order</td>
+                  <td>Deduct immediately as the order is saved completed.</td>
+                </tr>
+                <tr>
+                  <td>Edit a completed order</td>
+                  <td>Apply the difference in consumption.</td>
+                </tr>
+                <tr>
+                  <td>Cancel a completed order</td>
+                  <td>Restore its recorded consumption.</td>
+                </tr>
+                <tr>
+                  <td>Receive stock</td>
+                  <td>Add the purchased quantity and record a movement.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p>
+            Stock may become negative so staff can continue taking orders when a stock count is
+            inaccurate. Investigate low or negative quantities and correct the stock record. OpenPOS
+            does not reserve ingredients for unfinished orders or manage purchase orders, expiry
+            dates, waste or supplier invoices.
+          </p>
+        </section>
+        <section id="settings">
+          <h2>6. Configure your business</h2>
+          <p>
+            Open <strong>Configuration</strong> and unlock administrator access to change settings.
+          </p>
+          <ul>
+            <li>
+              <strong>Business name and receipt footer:</strong> identify the shop and add a short
+              message to receipts.
+            </li>
+            <li>
+              <strong>Currency:</strong> choose CAD, USD, EUR, GBP, AUD or NZD. Prices use two
+              decimal places; no currency conversion is performed. Currency can change only when
+              there is no order history. Use Start fresh to clear demonstration orders before
+              choosing your real shop currency.
+            </li>
+            <li>
+              <strong>Sales tax (%):</strong> enter a percentage, such as <code>13</code> for 13%.
+              Do not enter <code>0.13</code> for 13%.
+            </li>
+            <li>
+              <strong>Order fees:</strong> use Add fee, enter a name and amount, and choose whether
+              it is taxable. Employees select the fees that apply to each order.
+            </li>
+            <li>
+              <strong>Auto Complete Orders:</strong> turn on for a convenience counter where items
+              are handed over immediately. Leave off for orders that need kitchen preparation.
+            </li>
+            <li>
+              <strong>Track inventory consumption:</strong> turn on to apply configured recipes at
+              completion. Existing completed orders retain whether inventory was tracked when they
+              completed.
+            </li>
+            <li>
+              <strong>This device:</strong> choose standalone, primary (master) or client, and the
+              Open on launch tab for this installation.
+            </li>
+          </ul>
+          <p>
+            The application validates numeric settings. Tax and totals are calculated in cents and
+            rounded to the nearest cent. The same configured tax rate applies to the item subtotal
+            and taxable fees; multiple tax rates, exemptions and tax-inclusive pricing are outside
+            this version’s scope.
+          </p>
+        </section>
+        <section id="admin">
+          <h2>7. Administrator access</h2>
+          <p>
+            Open <strong>Configuration → Security</strong> and set a password of at least eight
+            characters during setup. Until a fresh standalone installation has a password,
+            administrator controls remain open. Use <strong>Unlock administrator</strong> when
+            making changes, then <strong>Lock administrator</strong> when finished. After a password
+            is configured, restarting requires a new unlock.
+          </p>
+          <p>
+            Menu maintenance, stock management, business settings and Audit require administrator
+            access. Taking, editing and completing orders remain available to staff. An unlock
+            applies only to the device where it is entered, so the kitchen can stay locked while the
+            owner uses Audit at the counter.
+          </p>
+          <p>
+            On a connected client, unlock with the <strong>master’s administrator password</strong>.
+            The master grants that client a temporary session; changing the master password or
+            restarting the master revokes client sessions. Set a local password before pairing a
+            kitchen installation; it can be used to repair that device’s connection settings while
+            disconnected. This does not permit offline changes to the shared business records.
+          </p>
+          <div class="callout amber">
+            <strong>Protect the Windows account too</strong>
+            <p>
+              The password protects controls inside OpenPOS. Someone who can access this Windows
+              account’s files can read or modify local data. Use suitable Windows accounts, device
+              access controls and backups. This is not a multi-user employee login or a tamper-proof
+              accounting system.
+            </p>
+          </div>
+        </section>
+        <section id="audit">
+          <h2>8. Understand your sales</h2>
+          <p>
+            Unlock administrator access and open <strong>Audit</strong>. Choose
+            <strong>Today</strong>, <strong>Last 7 days</strong>, <strong>This month</strong>,
+            <strong>Last month</strong>, or set <strong>From</strong> and
+            <strong>Through</strong> dates. Review gross sales, sales before tax, tax, order count
+            and average order value. In What’s selling, choose <strong>By quantity</strong> or
+            <strong>By revenue</strong>, and inspect Inventory used for the same period.
+          </p>
+          <p>
+            Completed orders count on their completion date; unfinished and cancelled orders do not.
+            Dates use the standalone computer’s local timezone, or the master’s timezone for
+            connected shops. Gross sales include tax and fees. Item revenue is the recorded selling
+            price multiplied by quantity, excluding tax and fees. Inventory figures use actual stock
+            movement dates and include reversals, so a correction can appear on a different day from
+            the original sale.
+          </p>
+          <p>
+            Use <strong>Export report</strong> for a CSV copy. Keep original backups too: an
+            exported summary does not contain the entire recoverable shop state. Order corrections
+            update the current reporting record; OpenPOS is not an immutable financial ledger.
+          </p>
+        </section>
+        <section id="network">
+          <h2>9. Connect a counter and a kitchen</h2>
+          <p>
+            A single shop uses one authoritative <strong>primary (master)</strong> and registered
+            <strong>clients</strong>. Every computer uses the same installer. All devices must be
+            reachable over a trusted local network.
+          </p>
+          <div
+            class="flow"
+            role="img"
+            aria-label="Counter master sends updates to kitchen client; kitchen client sends order changes to counter master"
+          >
+            <span class="node">Counter · Master</span><span class="arrow">⇄</span
+            ><span class="node">Kitchen · Client</span>
+          </div>
+          <h3>On the counter device</h3>
+          <ol>
+            <li>
+              Set an administrator password in Configuration → Security; the master requires one
+              before sharing data.
+            </li>
+            <li>
+              In Configuration → This device, set Connection mode to
+              <strong>Primary (master)</strong>.
+            </li>
+            <li>
+              Set Listening port (the initial default is <code>3210</code>). Use
+              <strong>Generate connection key</strong> or a random key of at least 24 characters.
+              Use Copy key to transfer it securely and keep it private.
+            </li>
+            <li>
+              Use <strong>Register client</strong> for each kitchen device, entering its exact
+              client ID and a recognizable name.
+            </li>
+            <li>
+              If Windows asks, allow OpenPOS on your trusted private network. The port must be
+              reachable from the kitchen device.
+            </li>
+          </ol>
+          <h3>On each kitchen device</h3>
+          <ol>
+            <li>
+              Set a local administrator password before pairing, so connection settings can be
+              repaired if the network is down.
+            </li>
+            <li>
+              In Configuration → This device, choose the <strong>Client</strong> connection mode.
+            </li>
+            <li>
+              Copy <strong>This client’s ID</strong> and register that exact identifier on the
+              master.
+            </li>
+            <li>
+              Enter Primary device URL, such as <code>http://192.168.1.20:3210</code>, using the
+              actual master address and configured port.
+            </li>
+            <li>
+              Enter the same Shared connection key. Choose <strong>Orders</strong> under Open on
+              launch and save.
+            </li>
+            <li>
+              Verify the connection indicator. Place a test order at the counter, then complete it
+              in the kitchen and check the result at both devices.
+            </li>
+          </ol>
+          <p>
+            Client actions are sent to the master for validation and saving. Updated business data
+            returns to all connected clients. The client’s previous standalone demonstration data is
+            not uploaded. Display and connection settings remain local; connected administrator
+            actions require the master’s password as described above.
+          </p>
+          <div class="callout amber">
+            <strong>Keep the master running</strong>
+            <p>
+              Clients require a connection to save changes. If the master or network is unavailable,
+              check the connection indicator and restore connectivity before changing orders. Do not
+              create a second independent master for the same shop. Sync uses authenticated
+              local-network communication without encryption; do not expose the listening port
+              directly to the internet.
+            </p>
+          </div>
+          <p>
+            For one computer, choose <strong>Standalone</strong>. No network setup is needed. A
+            Windows user profile on one physical device is still a separate local dataset.
+          </p>
+        </section>
+        <section id="data">
+          <h2>10. Data and backups</h2>
+          <p>
+            On first launch, OpenPOS creates <code>%USERPROFILE%\.openpos</code>. The data belongs
+            to the signed-in Windows user, not the application installation folder. Use
+            <strong>Configuration → Business → Open data folder</strong> to locate it. Development
+            launches use a separate <code>.dev-data</code> folder in the source repository.
+          </p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>File</th>
+                  <th>Contents</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>menu.json</code></td>
+                  <td>Products, variants, prices and recipes.</td>
+                </tr>
+                <tr>
+                  <td><code>inventory.json</code></td>
+                  <td>Inventory names, units, quantities and thresholds.</td>
+                </tr>
+                <tr>
+                  <td><code>orders.json</code></td>
+                  <td>Orders, their prices, selected fees, tax and status.</td>
+                </tr>
+                <tr>
+                  <td><code>config.json</code></td>
+                  <td>Shared business configuration.</td>
+                </tr>
+                <tr>
+                  <td><code>movements.json</code></td>
+                  <td>Stock receipts, deductions and reversals.</td>
+                </tr>
+                <tr>
+                  <td><code>device.json</code> / <code>auth.json</code></td>
+                  <td>Local connection settings and password verification data. Keep private.</td>
+                </tr>
+                <tr>
+                  <td><code>backups/</code></td>
+                  <td>Business-state backup files and preserved rejected menu edits.</td>
+                </tr>
+                <tr>
+                  <td>Other files</td>
+                  <td>
+                    Application-managed metadata, recovery transaction, client cache, instance lock
+                    and NDJSON logs. Leave these to OpenPOS.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <h3>Make a backup</h3>
+          <p>
+            Use <strong>Create backup</strong> in Configuration. OpenPOS saves a dated
+            business-state JSON file under <code>backups/</code> and shows its path. Copy that file
+            to a protected location outside the working data folder. Business-state backups omit
+            local device credentials and settings. For a full device backup, close OpenPOS and copy
+            the entire <code>.openpos</code> folder to secure storage. Take the authoritative backup
+            on the master when using several devices. Keep more than one dated backup and test
+            recovery before depending on it.
+          </p>
+          <h3>Restore a full folder backup</h3>
+          <ol>
+            <li>Close OpenPOS on the master and clients.</li>
+            <li>Keep a separate copy of the current <code>.openpos</code> folder.</li>
+            <li>Restore the complete saved folder into the same Windows account’s user folder.</li>
+            <li>
+              Start the master first. Check the menu, quantities and latest orders, then reconnect
+              clients.
+            </li>
+          </ol>
+          <p>
+            Do not combine individual files from different backup dates. Changes to orders and stock
+            are related. Exported backup formats and whole-folder copies are different; do not
+            rename an export to replace an individual data file. There is no one-click import of a
+            business-state backup in this version.
+          </p>
+          <h3>Starting with an empty shop</h3>
+          <ol>
+            <li>
+              Finish your demonstration and unlock Configuration on the standalone device or master.
+            </li>
+            <li>
+              Under <strong>Begin a new sales ledger</strong>, read the displayed consequences and
+              use <strong>Start fresh</strong>. Type <code>START FRESH</code> to confirm.
+            </li>
+            <li>
+              OpenPOS creates a business backup, clears all orders and stock movement history, and
+              sets stock quantities to zero. Your menu, stock item definitions, configuration and
+              device settings remain.
+            </li>
+            <li>
+              Choose your real currency while there are no orders. Enter or receive your true
+              opening stock and check the menu before service.
+            </li>
+          </ol>
+          <p>
+            Start fresh also clears real sales if used on a live shop. Use it only when you intend
+            to replace the trading history. Deleting the entire data folder starts a new
+            demonstration shop on the next launch.
+          </p>
+        </section>
+        <section id="manual-json">
+          <h2>11. Edit the menu JSON directly</h2>
+          <p>
+            Experienced users can edit <code>menu.json</code> with a plain-text editor. Back up
+            first. Keep the outer array and preserve each existing item’s unique <code>id</code>. In
+            a connected shop, edit the master’s files. Connected clients use the master’s business
+            data.
+          </p>
+          <p>
+            <strong>File prices are integer cents:</strong> <code>250</code> means $2.50. This
+            differs from the menu dialog, where you type 2.50. All fields in the example should be
+            present.
+          </p>
+          <pre><code>[
+  {
+    "id": "item-canned-pepsi",
+    "name": "Canned Pepsi",
+    "category": "Drinks",
+    "description": "355 mL can",
+    "price": 250,
+    "variants": [],
+    "recipe": [{ "inventoryId": "pepsi", "quantity": 1 }],
+    "color": "#087d75",
+    "icon": "drink",
+    "active": true,
+    "updatedAt": "2026-09-30T12:00:00.000Z"
+  }
+]</code></pre>
+          <p>
+            The recipe identifier must reference a real item in <code>inventory.json</code>;
+            <code>pepsi</code> is the sample stock identifier. Substitute your own inventory item’s
+            ID. For an untracked item, use <code>"recipe": []</code>. To add sizes, replace the
+            empty variants list with entries in this shape:
+          </p>
+          <pre><code>"variants": [
+  { "id": "size-small", "name": "Small", "price": 200, "recipe": [] },
+  { "id": "size-large", "name": "Large", "price": 300, "recipe": [] }
+]</code></pre>
+          <p>
+            Save the file. OpenPOS watches for valid changes and updates the interface. Invalid JSON
+            or invalid fields leave the last accepted state in use and produce a warning. Correct
+            the file and save again. Use double quotes, omit trailing commas and do not add comments
+            to JSON. Changing a menu price affects later selections, not already recorded order
+            lines.
+          </p>
+          <div class="callout">
+            <strong>Use the app for orders and stock</strong>
+            <p>
+              Manual menu customization is supported. Use the order and inventory controls for
+              routine business changes so stock movements, order revisions and totals stay
+              consistent.
+            </p>
+          </div>
+        </section>
+        <section id="troubleshooting">
+          <h2>12. Get unstuck</h2>
+          <details>
+            <summary>A menu edit did not appear</summary>
+            <p>
+              Check that you edited the data folder belonging to the Windows user running OpenPOS.
+              In a connected shop, edit the master. Correct any validation warning, confirm the file
+              is valid JSON and save it again. An inactive product does not appear for sale.
+            </p>
+          </details>
+          <details>
+            <summary>The kitchen is not receiving orders</summary>
+            <p>
+              Confirm the master is running, both devices are on the same reachable private network,
+              the URL and port match, the sync keys match and the client identifier is registered.
+              Check Windows Firewall for the chosen private-network port. Device clocks must also be
+              correct because signed requests have a short validity window. Client changes are
+              unavailable while disconnected.
+            </p>
+          </details>
+          <details>
+            <summary>Inventory was not deducted</summary>
+            <p>
+              Check that inventory is enabled, the order is completed and its selected product or
+              variant had a recipe when it was added to the order. Items without a recipe do not
+              consume stock. Menu edits do not retrofit historical recipes.
+            </p>
+          </details>
+          <details>
+            <summary>An order total looks wrong</summary>
+            <p>
+              Check quantities, variant choice, selected fees and the percentage tax rate. Fees
+              marked taxable enter the tax calculation. Recorded orders preserve their own prices;
+              changing the menu alone does not reprice them.
+            </p>
+          </details>
+          <details>
+            <summary>The printer output is wrong</summary>
+            <p>
+              Check the selected Windows printer, paper size and margins. Print one test receipt.
+              The operating system and printer driver determine available printers and paper
+              handling; no dedicated cash-drawer or ESC/POS control is included.
+            </p>
+          </details>
+          <details>
+            <summary>I forgot the administrator password</summary>
+            <p>
+              There is no default recovery password. Preserve your data and ask the person
+              responsible for the installation for help. Do not delete shop records to reset access.
+              Local device authentication is separate from the shared shop data.
+            </p>
+          </details>
+          <details>
+            <summary>The application reports a file or disk error</summary>
+            <p>
+              Stop making changes until the error is resolved. Check available disk space and
+              permissions on the user data folder. Keep the folder and its recovery files intact,
+              back it up, and provide the recorded error to the person supporting your installation.
+              Do not manually remove transaction files.
+            </p>
+          </details>
+        </section>
+      </main>
+    </div>
+    <footer>
+      OpenPOS · Business handbook · Apache License 2.0 · Included with the application
+    </footer>
+  </body>
+</html>

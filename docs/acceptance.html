@@ -1,0 +1,492 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>OpenPOS · Acceptance map</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header>
+      <p class="eyebrow">OpenPOS · Engineering reference · Source only</p>
+      <h1>The brief, made traceable.</h1>
+      <p>
+        Each requirement has an implementation path and a way to verify it. Platform-dependent
+        checks are called out explicitly.
+      </p>
+    </header>
+    <nav class="topnav" aria-label="Documentation">
+      <a href="../README.md">README</a><a href="architecture.html">Architecture</a
+      ><a href="implementation.html">Implementation decisions</a
+      ><a href="acceptance.html" aria-current="page">Acceptance map</a
+      ><a href="help.html">Business handbook</a><a href="project-brief.md">Original brief</a>
+    </nav>
+    <div class="wrap">
+      <section>
+        <h2>How to read this map</h2>
+        <p>
+          The original request is preserved in <a href="project-brief.md">project-brief.md</a>. This
+          page records implemented behavior and verification targets, not a guarantee about an
+          untested deployment. Run <code>yarn verify</code> for the automated suite and build; use
+          the release checklist for physical Windows, printer and network checks.
+        </p>
+        <div class="callout">
+          <strong>Scope interpretations</strong>
+          <p>
+            Inventory is deducted when an order completes. Clients may edit orders through one
+            master. Per-machine installation uses per-user runtime data. Local administrator unlock
+            controls access to Audit. “POS” describes order recording here; external payments are
+            not integrated.
+          </p>
+        </div>
+      </section>
+      <section>
+        <h2>Foundations, testing and connected devices</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Requirement</th>
+                <th>Implementation / verification</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Stack</td>
+                <td>
+                  TypeScript, React, Electron, Webpack, Yarn, MDI, JSON, NDJSON and Electron
+                  Builder’s NSIS target. Inspect package/build settings and run build + installer
+                  generation.
+                </td>
+              </tr>
+              <tr>
+                <td>Vibe / touch / identity</td>
+                <td>
+                  Calm work surface, large actionable controls, responsive two-pane ordering,
+                  conventional icons and repository-native app mark. Verify actual touch hardware
+                  and minimum useful window size.
+                </td>
+              </tr>
+              <tr>
+                <td>Testing A</td>
+                <td>
+                  Domain/store/sync unit and integration tests plus Electron workflow checks. Run
+                  typecheck, test, build and test:e2e; update relevant tests with future changes.
+                </td>
+              </tr>
+              <tr>
+                <td>Testing B–C</td>
+                <td>
+                  First-run demo includes pizza sizes/recipes, Snickers, canned Pepsi, stock
+                  receipts/opening quantities and orders at different stages. Inspect a fresh
+                  isolated data folder.
+                </td>
+              </tr>
+              <tr>
+                <td>Master &amp; Client A</td>
+                <td>
+                  Master accepts authenticated registered clients, saves commands and supplies
+                  authoritative state. Confirm a newly created order reaches clients.
+                </td>
+              </tr>
+              <tr>
+                <td>Master &amp; Client B</td>
+                <td>
+                  Same app can default to Menu Items or Orders per device. Confirm a kitchen client
+                  opens Orders and receives the master catalog/history.
+                </td>
+              </tr>
+              <tr>
+                <td>Master &amp; Client C</td>
+                <td>
+                  Kitchen completion is submitted to master and appears on connected screens. Verify
+                  completion and stock propagation, stale-edit rejection and disconnected-write
+                  rejection.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+      <section>
+        <h2>Ordering and menu maintenance</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Requirement</th>
+                <th>Implementation / verification</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Basics A</td>
+                <td>
+                  Menu Items is the default counter workspace; tap an item to add it, or choose its
+                  variant.
+                </td>
+              </tr>
+              <tr>
+                <td>Basics B–C</td>
+                <td>
+                  Base products and named full-price variants. Verify plain retail item and multiple
+                  pizza sizes in a draft.
+                </td>
+              </tr>
+              <tr>
+                <td>Basics D</td>
+                <td>
+                  Wide catalog on the left and smaller current-order panel on the right; usable
+                  touch controls.
+                </td>
+              </tr>
+              <tr>
+                <td>Basics E</td>
+                <td>
+                  Live item subtotal, selected fees, tax and total. Integer-cent calculations and
+                  taxable fee tests.
+                </td>
+              </tr>
+              <tr>
+                <td>Basics F</td>
+                <td>
+                  Action labels, native title tooltips and help context where useful. Touch users
+                  have visible labels instead of requiring hover.
+                </td>
+              </tr>
+              <tr>
+                <td>Basics G</td>
+                <td>
+                  Order saves the record to JSON and makes a printable receipt available. Verify
+                  save/reload and receipt content.
+                </td>
+              </tr>
+              <tr>
+                <td>Orders A–B</td>
+                <td>
+                  Orders destination separates In progress, Completed and added Cancelled history.
+                  Completed action updates persisted status and inventory.
+                </td>
+              </tr>
+              <tr>
+                <td>Orders C</td>
+                <td>
+                  Edit in-progress or completed orders through the current-order panel. Totals
+                  recalculate and completed stock consumption is adjusted by delta.
+                </td>
+              </tr>
+              <tr>
+                <td>Menu Items A</td>
+                <td>
+                  Each editable menu card uses the same prepopulated Add item dialog. Saves
+                  propagate through store snapshots and connected clients.
+                </td>
+              </tr>
+              <tr>
+                <td>Customization A</td>
+                <td>
+                  Add item dialog collects name, category, price, variants, description and optional
+                  inventory recipe. Validated save persists JSON.
+                </td>
+              </tr>
+              <tr>
+                <td>Customization B</td>
+                <td>
+                  Store events immediately refresh the catalog; no restart required after a
+                  successful create/edit.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+      <section>
+        <h2>Stock, reports and configuration</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Requirement</th>
+                <th>Implementation / verification</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Inventory A</td>
+                <td>
+                  Optional tracking with product/variant recipes. Snickers consumes one bar on
+                  completion. Verify auto-complete, edit and cancel inventory effects.
+                </td>
+              </tr>
+              <tr>
+                <td>Inventory B</td>
+                <td>
+                  Toolbar Inventory dialog creates stock records and receives purchases by selected
+                  item/quantity. Menu editor links consumption. Stock events persist as movements.
+                </td>
+              </tr>
+              <tr>
+                <td>Audit A</td>
+                <td>
+                  Admin-only Audit aggregates persisted completed orders and inventory movements,
+                  alongside catalog/stock names.
+                </td>
+              </tr>
+              <tr>
+                <td>Audit B</td>
+                <td>
+                  Selectable dates include custom intervals. Reports use completion dates for sales
+                  and actual movement dates for stock, in the standalone/master computer’s timezone.
+                </td>
+              </tr>
+              <tr>
+                <td>Audit C</td>
+                <td>
+                  Gross, subtotal, tax, fees, order count/average, inventory consumption and item
+                  sales sorted by quantity or revenue; CSV export added.
+                </td>
+              </tr>
+              <tr>
+                <td>Configuration A–B</td>
+                <td>
+                  Toolbar Configuration includes business settings and numeric percentage tax.
+                </td>
+              </tr>
+              <tr>
+                <td>Configuration C</td>
+                <td>
+                  Add/remove/edit named fees, amounts and taxable flags. Select fee chips per order;
+                  show distinct receipt lines.
+                </td>
+              </tr>
+              <tr>
+                <td>Configuration D</td>
+                <td>
+                  Auto Complete Orders bypasses preparation and applies inventory consumption
+                  immediately when enabled.
+                </td>
+              </tr>
+              <tr>
+                <td>Configuration E</td>
+                <td>
+                  Client form validation plus trusted-process schema validation; reject malformed
+                  numeric/business values.
+                </td>
+              </tr>
+              <tr>
+                <td>Configuration F</td>
+                <td>
+                  Business name, currency, footer, inventory toggle, device name/default tab,
+                  security, backups and Start fresh.
+                </td>
+              </tr>
+              <tr>
+                <td>Configuration G</td>
+                <td>
+                  Standalone disables synchronization. Master configures a port, shared key and
+                  registered clients; Client enters master URL/key.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+      <section>
+        <h2>Persistence and installation</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Requirement</th>
+                <th>Implementation / verification</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Backend data A</td>
+                <td><code>menu.json</code> has complete base/variant/recipe records.</td>
+              </tr>
+              <tr>
+                <td>Backend data B</td>
+                <td>
+                  Validated <code>menu.json</code> watcher refreshes UI and master snapshot. Invalid
+                  changes show a warning and retain accepted state.
+                </td>
+              </tr>
+              <tr>
+                <td>Backend data C–D</td>
+                <td>Separate <code>inventory.json</code> and <code>orders.json</code>.</td>
+              </tr>
+              <tr>
+                <td>Backend data E</td>
+                <td>
+                  Shared config/movement files; local device/auth; schema/revision metadata;
+                  recovery transaction; backup snapshots; NDJSON events. File responsibilities
+                  documented.
+                </td>
+              </tr>
+              <tr>
+                <td>Installation A</td>
+                <td>
+                  NSIS options create desktop and Start menu shortcuts. Confirm on a clean Windows
+                  profile using the generated installer.
+                </td>
+              </tr>
+              <tr>
+                <td>Installation B</td>
+                <td>
+                  First app launch creates <code>%USERPROFILE%\.openpos</code>; intentional
+                  first-launch interpretation avoids elevated installer identity errors.
+                </td>
+              </tr>
+              <tr>
+                <td>Installation C</td>
+                <td>NSIS per-machine configuration; verify elevated installation on Windows.</td>
+              </tr>
+              <tr>
+                <td>Installation D</td>
+                <td>
+                  Single installer with configurable standalone/master/client role. Connected
+                  clients can perform normal order actions; admin operations require access.
+                </td>
+              </tr>
+              <tr>
+                <td>Installation E</td>
+                <td>
+                  Device-local administrator password/unlock; Audit hidden and guarded while locked.
+                  Verify renderer controls and privileged operation authorization.
+                </td>
+              </tr>
+              <tr>
+                <td>Environment A</td>
+                <td>
+                  Windows x64 target, Windows 10+ assumption. Actual OS compatibility and hardware
+                  remain release checks.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+      <section>
+        <h2>Documentation and review</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Requirement</th>
+                <th>Implementation / verification</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Documentation A</td>
+                <td>
+                  README: development quick start, build/install, setup, data customization,
+                  network, commands and project structure.
+                </td>
+              </tr>
+              <tr>
+                <td>Documentation B</td>
+                <td>
+                  <code>docs/help.html</code> and local style are bundled; Help opens external
+                  browser. Instructions cover daily use, settings, recipes, JSON, LAN and recovery.
+                </td>
+              </tr>
+              <tr>
+                <td>Documentation C</td>
+                <td>
+                  Source-only <code>architecture.html</code> with accessible SVG diagram, lifecycle
+                  and process/data boundaries.
+                </td>
+              </tr>
+              <tr>
+                <td>Documentation D</td>
+                <td>
+                  Source-only <code>implementation.html</code> records choices, scope and ambiguity
+                  resolution.
+                </td>
+              </tr>
+              <tr>
+                <td>Documentation E</td>
+                <td>
+                  <code>project-brief.md</code> preserves the original request and discloses Codex /
+                  GPT-6 identity without inventing an exact backend model identifier.
+                </td>
+              </tr>
+              <tr>
+                <td>Documentation F</td>
+                <td>
+                  This acceptance map, recovery guidance, security/network boundaries and release
+                  checklist.
+                </td>
+              </tr>
+              <tr>
+                <td>Sales A–B</td>
+                <td>
+                  README feature cards plus standalone visual <code>sales.html</code> for
+                  nontechnical readers. No unsupported payment or high-volume scalability claims.
+                </td>
+              </tr>
+              <tr>
+                <td>Review A</td>
+                <td>
+                  Added cancellation, stock delta corrections, stale-write detection, local admin
+                  guard, backup, demo-to-live reset, customer/fulfillment details and CSV reporting.
+                </td>
+              </tr>
+              <tr>
+                <td>Review B–C</td>
+                <td>
+                  Inventory timing, master authority, user-folder lifecycle, admin interpretation,
+                  money/tax and demo reset decisions are documented. User’s autonomy instruction
+                  governs implementation.
+                </td>
+              </tr>
+              <tr>
+                <td>Future prompts</td>
+                <td>
+                  Keep tests and user/source documentation aligned as the implementation changes.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+      <section>
+        <h2>Manual release checklist</h2>
+        <ol>
+          <li>
+            Build the NSIS installer. Install for all users with administrator elevation and confirm
+            both shortcuts launch correctly.
+          </li>
+          <li>
+            Launch under a standard Windows account. Confirm its own data path, first-run demo,
+            password setup and subsequent restart persistence.
+          </li>
+          <li>
+            Exercise the full workflow on a touchscreen: search, variant choice, quantity, fees,
+            notes, order, edit, completion and receipt.
+          </li>
+          <li>
+            Print a receipt on the actual target printer and paper width. Confirm amounts,
+            accents/symbols and page layout.
+          </li>
+          <li>
+            Configure a master and kitchen on two physical devices. Verify registration,
+            propagation, order completion, conflict handling and reconnect behavior.
+          </li>
+          <li>
+            Make a backup, restore a closed-app folder copy to a test location and confirm the
+            recovered state. Exercise malformed menu JSON in a disposable dataset.
+          </li>
+          <li>
+            Before a live trading day, use Start fresh, enter opening stock and check tax/fee
+            settings with the business owner. Keep a separate backup of the prepared store.
+          </li>
+        </ol>
+      </section>
+    </div>
+    <footer>OpenPOS · Source-only acceptance map · Read alongside the current test results</footer>
+  </body>
+</html>

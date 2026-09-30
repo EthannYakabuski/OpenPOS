@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>OpenPOS · Architecture</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header>
+      <p class="eyebrow">OpenPOS · Engineering reference · Source only</p>
+      <h1>A local shop.<br />A single source of truth.</h1>
+      <p>
+        React handles the counter experience. Electron owns files and trusted operations. One master
+        coordinates connected devices.
+      </p>
+    </header>
+    <nav class="topnav" aria-label="Documentation">
+      <a href="../README.md">README</a
+      ><a href="architecture.html" aria-current="page">Architecture</a
+      ><a href="implementation.html">Implementation decisions</a
+      ><a href="acceptance.html">Acceptance map</a><a href="help.html">Business handbook</a
+      ><a href="sales.html">Product overview</a>
+    </nav>
+    <div class="wrap">
+      <section>
+        <h2>Inside one installation</h2>
+        <p>
+          Every machine uses the same application. The local device role determines whether business
+          commands execute locally or travel to the master. The renderer has no direct filesystem or
+          Node.js access.
+        </p>
+        <div class="diagram">
+          <svg
+            viewBox="0 0 1080 670"
+            xmlns="http://www.w3.org/2000/svg"
+            role="img"
+            aria-labelledby="architecture-title architecture-desc"
+          >
+            <title id="architecture-title">OpenPOS process and data architecture</title>
+            <desc id="architecture-desc">
+              React renderer calls an allowlisted preload bridge into the Electron main process.
+              Main validates commands and invokes the domain engine and transactional JSON store.
+              The store watches manual menu edits and writes NDJSON logs. A connected client submits
+              authenticated commands to the master and receives snapshots. Administrator access is
+              device-local.
+            </desc>
+            <defs>
+              <marker
+                id="arrow"
+                markerWidth="10"
+                markerHeight="8"
+                refX="9"
+                refY="4"
+                orient="auto-start-reverse"
+              >
+                <path d="M0 0L10 4L0 8Z" fill="#087d75" />
+              </marker>
+            </defs>
+            <rect x="20" y="20" width="1040" height="630" rx="20" fill="#f3f7f5" stroke="#c6d9d1" />
+            <text
+              x="42"
+              y="55"
+              font-family="Segoe UI,sans-serif"
+              font-size="15"
+              fill="#52686d"
+              font-weight="700"
+            >
+              WINDOWS INSTALLATION · ONE ELECTRON APPLICATION
+            </text>
+            <g font-family="Segoe UI,sans-serif">
+              <rect x="50" y="85" width="420" height="132" rx="13" fill="#143d3b" />
+              <text x="72" y="117" font-size="20" fill="white" font-weight="650">
+                React renderer
+              </text>
+              <text x="72" y="147" font-size="15" fill="#d4e8e3">
+                Menu Items · Current order · Orders · Audit
+              </text>
+              <text x="72" y="174" font-size="15" fill="#d4e8e3">
+                Dialogs · Touch controls · Status feedback
+              </text>
+              <text x="72" y="199" font-size="12" fill="#a6dfd1">
+                Context isolation · No renderer Node integration
+              </text>
+              <rect x="550" y="85" width="480" height="132" rx="13" fill="white" stroke="#b8ccc5" />
+              <text x="572" y="119" font-size="19" fill="#142c32" font-weight="650">
+                Device-local controls
+              </text>
+              <text x="572" y="150" font-size="15" fill="#52686d">
+                Admin unlock · Password verification · Device role
+              </text>
+              <text x="572" y="178" font-size="15" fill="#52686d">
+                Default tab · Sync credentials · Client registration
+              </text>
+              <text x="572" y="203" font-size="12" fill="#52686d">
+                Not replicated as shared business data
+              </text>
+              <rect
+                x="110"
+                y="258"
+                width="300"
+                height="63"
+                rx="11"
+                fill="#e2f1eb"
+                stroke="#92bfb2"
+              />
+              <text x="130" y="285" font-size="17" fill="#075e58" font-weight="650">
+                Allowlisted preload API
+              </text>
+              <text x="130" y="306" font-size="13" fill="#52686d">
+                Typed requests, replies and state events
+              </text>
+              <path d="M260 221V252" stroke="#087d75" stroke-width="2" marker-end="url(#arrow)" />
+              <rect x="50" y="365" width="420" height="125" rx="13" fill="white" stroke="#b8ccc5" />
+              <text x="72" y="397" font-size="20" fill="#142c32" font-weight="650">
+                Electron main process
+              </text>
+              <text x="72" y="426" font-size="15" fill="#52686d">
+                Validate · Authorize · Route · Serialize commands
+              </text>
+              <text x="72" y="455" font-size="15" fill="#52686d">
+                Receipts / Windows print · External help · Backups
+              </text>
+              <path d="M260 325V359" stroke="#087d75" stroke-width="2" marker-end="url(#arrow)" />
+              <rect
+                x="550"
+                y="260"
+                width="480"
+                height="105"
+                rx="13"
+                fill="#e2f1eb"
+                stroke="#92bfb2"
+              />
+              <text x="572" y="294" font-size="20" fill="#075e58" font-weight="650">
+                Optional trusted-LAN sync
+              </text>
+              <text x="572" y="323" font-size="15" fill="#52686d">
+                Registered clients → signed commands → master
+              </text>
+              <text x="572" y="348" font-size="15" fill="#52686d">
+                Master → authoritative snapshots → clients
+              </text>
+              <path
+                d="M475 404H505V313H542"
+                stroke="#087d75"
+                fill="none"
+                stroke-width="2"
+                marker-end="url(#arrow)"
+              />
+              <path d="M790 221V254" stroke="#087d75" stroke-width="2" marker-end="url(#arrow)" />
+              <rect x="550" y="397" width="480" height="93" rx="13" fill="#143d3b" />
+              <text x="572" y="431" font-size="20" fill="white" font-weight="650">
+                Domain engine
+              </text>
+              <text x="572" y="460" font-size="15" fill="#d4e8e3">
+                Cents · Order revisions · Stock deltas · Sales reports
+              </text>
+              <path d="M474 444H542" stroke="#087d75" stroke-width="2" marker-end="url(#arrow)" />
+              <rect x="50" y="545" width="980" height="77" rx="13" fill="white" stroke="#b8ccc5" />
+              <text x="72" y="575" font-size="19" fill="#142c32" font-weight="650">
+                Local persistence · %USERPROFILE%\.openpos
+              </text>
+              <text x="72" y="602" font-size="14" fill="#52686d">
+                JSON business files + recovery metadata | NDJSON operational logs | Validated file
+                watching
+              </text>
+              <path d="M790 495V539" stroke="#087d75" stroke-width="2" marker-end="url(#arrow)" />
+              <path d="M200 539V497" stroke="#087d75" stroke-width="2" marker-end="url(#arrow)" />
+              <text x="213" y="523" font-size="12" fill="#52686d">
+                validated changes → UI updates
+              </text>
+            </g>
+          </svg>
+        </div>
+      </section>
+      <section>
+        <h2>The order lifecycle</h2>
+        <div class="flow" aria-label="Order lifecycle">
+          <span class="node">Draft in renderer</span><span class="arrow">→</span
+          ><span class="node">Validate and save</span><span class="arrow">→</span
+          ><span class="node">In progress</span><span class="arrow">→</span
+          ><span class="node">Completed + stock deduction</span>
+        </div>
+        <p style="margin-top: 20px">
+          Auto-complete skips the preparation state. Completed-order edits calculate the difference
+          between recorded consumption before and after the edit; cancellation restores recorded
+          consumption. The order snapshots names, unit prices, recipes, fees and tax so future
+          catalog changes cannot silently rewrite a historical sale.
+        </p>
+        <div class="cards three">
+          <div class="card">
+            <div class="number">1 · Intent</div>
+            <h3>A staff action</h3>
+            <p>
+              The renderer submits a typed command. Order edits include the expected order revision.
+              Administrative commands require an unlocked local session.
+            </p>
+          </div>
+          <div class="card">
+            <div class="number">2 · Authority</div>
+            <h3>One accepted state</h3>
+            <p>
+              The standalone store or master validates the request, rejects stale writes, applies
+              calculations and persists the resulting state.
+            </p>
+          </div>
+          <div class="card">
+            <div class="number">3 · Distribution</div>
+            <h3>Every screen catches up</h3>
+            <p>
+              The renderer receives an updated snapshot. Connected clients refresh from the master.
+              Disconnected clients cannot commit business changes.
+            </p>
+          </div>
+        </div>
+      </section>
+      <section>
+        <h2>Where information belongs</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Boundary</th>
+                <th>Responsibilities</th>
+                <th>Intentionally excluded</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>React / TypeScript</td>
+                <td>
+                  Search, selection, accessible controls, form state, draft order, user feedback.
+                </td>
+                <td>Direct disk access, secrets, privileged Electron APIs.</td>
+              </tr>
+              <tr>
+                <td>Preload bridge</td>
+                <td>A small typed API for approved IPC operations and snapshot subscription.</td>
+                <td>General-purpose IPC or arbitrary code execution.</td>
+              </tr>
+              <tr>
+                <td>Electron main</td>
+                <td>
+                  Window lifecycle, local admin sessions, input validation, printer windows, help
+                  launch, store and sync coordination.
+                </td>
+                <td>Credit-card handling, OS user management.</td>
+              </tr>
+              <tr>
+                <td>Domain engine</td>
+                <td>
+                  Integer-cent calculations, order state transitions, revision checks, inventory
+                  movements and audit aggregation.
+                </td>
+                <td>UI-dependent business rules.</td>
+              </tr>
+              <tr>
+                <td>JSON store</td>
+                <td>
+                  Schema checks, serialized mutations, recoverable multi-file writes, backups and
+                  watched manual edits.
+                </td>
+                <td>A database server or unlimited-throughput promise.</td>
+              </tr>
+              <tr>
+                <td>LAN synchronization</td>
+                <td>
+                  Authoritative master, authenticated registered clients, replay checks and refresh.
+                </td>
+                <td>
+                  Internet hosting, encryption in transit, offline merging, multi-master consensus.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+      <section>
+        <h2>Data ownership and recovery</h2>
+        <p>
+          Business data is shared: catalog, stock, orders, configuration and inventory movements.
+          Device settings and password hashes stay local. Connected client administrator sessions
+          are authorized by the master’s password and scoped to that client. The master’s business
+          state overrides the client’s replica when connected. Only the master or standalone
+          installation imports manually edited menu files. Other files are application-managed.
+        </p>
+        <p>
+          JSON is deliberately human-readable. Updates spanning orders and inventory use a
+          transaction/recovery mechanism so a restart can finish a partially written state. External
+          menu edits pass the same schema checks before they become visible; malformed edits do not
+          replace the last accepted in-memory state.
+        </p>
+        <div class="callout">
+          <strong>Durability has a boundary.</strong>
+          <p>
+            Transaction recovery protects the application’s write sequence. It does not replace
+            backups, protect against disk failure, or turn local files into a tamper-proof financial
+            record. Use the backup tools and protect Windows access.
+          </p>
+        </div>
+      </section>
+      <section>
+        <h2>Build and distribution</h2>
+        <p>
+          Webpack compiles the TypeScript main process, preload bridge and React renderer. Electron
+          Builder packages the resulting application and produces an NSIS installer for Windows x64.
+          The installer creates Start menu and desktop shortcuts and installs per machine. Runtime
+          data is created on first launch under the actual Windows user’s profile, avoiding data
+          creation in an elevated installer account.
+        </p>
+        <p>
+          The packaged help document and its stylesheet are copied into the build. This architecture
+          document, implementation notes, acceptance mapping, original brief and sales sheet remain
+          in the source repository. The standalone application does not load remote web assets to
+          render its interface.
+        </p>
+      </section>
+    </div>
+    <footer>
+      OpenPOS · Source-only architecture reference · See implementation notes for operational limits
+    </footer>
+  </body>
+</html>

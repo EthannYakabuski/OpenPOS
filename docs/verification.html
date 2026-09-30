@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>OpenPOS · Verification record</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header>
+      <p class="eyebrow">OpenPOS 0.1.0 · Source-only build record</p>
+      <h1>Built. Exercised. Inspected.</h1>
+      <p>
+        Verification performed on September 30, 2026 against the initial Windows application and
+        installer payload.
+      </p>
+    </header>
+    <nav class="topnav" aria-label="Documentation">
+      <a href="../README.md">README</a><a href="architecture.html">Architecture</a
+      ><a href="implementation.html">Decisions</a><a href="acceptance.html">Acceptance map</a
+      ><a href="help.html">Handbook</a>
+    </nav>
+    <main class="wrap">
+      <section>
+        <h2>Verified results</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Check</th>
+              <th>Result</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>TypeScript contracts</td>
+              <td>Passed with strict type checking.</td>
+            </tr>
+            <tr>
+              <td>Unit and integration tests</td>
+              <td>
+                41 passed across six files: business rules, persistence/recovery, LAN sync, renderer
+                helpers, receipts and CSV exports.
+              </td>
+            </tr>
+            <tr>
+              <td>Packaged desktop workflows</td>
+              <td>All six passed against <code>release/win-unpacked/OpenPOS.exe</code>.</td>
+            </tr>
+            <tr>
+              <td>Production build</td>
+              <td>Webpack main, isolated preload and React renderer compiled successfully.</td>
+            </tr>
+            <tr>
+              <td>Installer generation</td>
+              <td>
+                Windows x64 NSIS installer generated with per-machine installation and desktop/Start
+                menu shortcut settings.
+              </td>
+            </tr>
+            <tr>
+              <td>Bundle inspection</td>
+              <td>
+                Bundled handbook and stylesheet present; original prompt, developer architecture,
+                implementation notes and sales collateral excluded. Third-party notices included.
+              </td>
+            </tr>
+            <tr>
+              <td>Formatting and patch checks</td>
+              <td>Prettier check and Git whitespace check passed.</td>
+            </tr>
+            <tr>
+              <td>Visual inspection</td>
+              <td>
+                Desktop and 1024×768 ordering views inspected. All five primary HTML documents
+                checked at 1440px and 760px, including local links/anchors and overflow.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+      <section>
+        <h2>What the desktop checks exercise</h2>
+        <ol>
+          <li>
+            Real Chromium touch-event ordering, pizza variant selection, exact totals, receipt
+            generation, completion and completed-order edits with inventory reconciliation.
+          </li>
+          <li>
+            Menu creation, direct JSON editing, automatic screen refresh and persistence across
+            application restarts.
+          </li>
+          <li>
+            Password setup, staff locking, protected reporting, administrator unlocking and CSV
+            export.
+          </li>
+          <li>
+            Automatic retail completion and the typed Start fresh confirmation with a saved backup.
+          </li>
+          <li>
+            Bundled help extraction and external-browser handoff, plus renderer isolation from Node.
+          </li>
+          <li>
+            Inventory creation, purchased stock receiving and a custom menu recipe configured
+            through the dialogs.
+          </li>
+        </ol>
+        <p>
+          The tests stub only the native print callback, save-file chooser and external-browser
+          launch for their respective checks. They still exercise the application’s receipt
+          window/content, export file writing and extracted help document. Native physical printing
+          was not simulated as a successful hardware test.
+        </p>
+      </section>
+      <section>
+        <h2>Build environment and artifact</h2>
+        <p>
+          Built on Windows 10 x64, OS build 19045, using Node 24.19.0, Yarn 1.22.22, Electron 44.5.0
+          and Electron Builder 26.15.3. Dependencies are pinned in <code>yarn.lock</code>.
+        </p>
+        <p>Artifact: <code>release/OpenPOS-0.1.0-Setup-x64.exe</code> (111,316,062 bytes).</p>
+        <p>SHA-256:</p>
+        <pre><code>2ac58f7bcdff454a0f61b7c0b2a7a18980e522419f43dbc61483b1b717f4904f</code></pre>
+        <p>
+          The checksum is also saved beside the installer. The artifact is unsigned; no publisher
+          certificate was provided. Rebuilding can produce a different checksum.
+        </p>
+      </section>
+      <section>
+        <h2>Before a live deployment</h2>
+        <ul>
+          <li>
+            Install and uninstall using the intended Windows account, verify elevation and
+            shortcuts, and test upgrade behavior with a recoverable backup.
+          </li>
+          <li>
+            Test the actual tablet touchscreen, display scaling, receipt printer, paper width and
+            printer driver.
+          </li>
+          <li>
+            Exercise two physical devices on the private shop network, including firewall rules and
+            disconnection/reconnection. Automated LAN tests ran independent services over local
+            sockets.
+          </li>
+          <li>
+            Confirm real menu prices, tax, fees, recipes and opening stock. Remove demonstration
+            sales with Start fresh before trading.
+          </li>
+          <li>
+            Configure distribution signing before publishing broadly. Payment processing and
+            payment-terminal integration are outside this version’s scope.
+          </li>
+        </ul>
+        <p>
+          This record verifies the implemented application; it is not a claim of audited financial
+          compliance, arbitrary large-business capacity or validated peripheral hardware.
+        </p>
+      </section>
+    </main>
+    <footer>OpenPOS · Initial build verification · Apache License 2.0</footer>
+  </body>
+</html>
