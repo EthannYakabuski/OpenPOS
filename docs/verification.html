@@ -126,6 +126,26 @@
         </p>
       </section>
       <section>
+        <h2>CI publishing-policy regression check</h2>
+        <p>
+          On September 30, 2026, the corrected <code>yarn dist</code> command completed successfully
+          with <code>CI=true</code>, GitHub Actions detection enabled and a simulated
+          <code>refs/tags/v0.1.0</code> push. The child process environment omitted
+          <code>GH_TOKEN</code>, <code>GITHUB_TOKEN</code> and <code>GITHUB_RELEASE_TOKEN</code>.
+          Production compilation and Windows x64 NSIS generation both passed with
+          <code>--publish never</code>; no publishing credentials were required.
+        </p>
+        <p>
+          Verification output was isolated in <code>.cache/ci-package-check</code>, preserving the
+          original release artifact above. The first local attempt could not download Electron
+          through the sandbox's network restriction; the successful run allowed public build-tool
+          downloads. Formatting, documentation section links and Git whitespace checks passed. This
+          was a local reproduction of CI conditions; the updated hosted workflow must still run
+          after the changes are pushed. Business behavior was unchanged, so the application test
+          results above remain the initial build record rather than a new test-suite run.
+        </p>
+      </section>
+      <section>
         <h2>Before a live deployment</h2>
         <ul>
           <li>

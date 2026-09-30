@@ -27,7 +27,7 @@
         ><a href="#money">Money and tax</a><a href="#orders">Orders and inventory</a
         ><a href="#storage">Files and durability</a><a href="#sync">Master and client</a
         ><a href="#security">Security and access</a
-        ><a href="#experience">Experience and packaging</a
+        ><a href="#experience">Experience and packaging</a><a href="#ci-security">CI and releases</a
         ><a href="#validation">Validation strategy</a><a href="#limitations">Known limits</a>
       </aside>
       <main>
@@ -336,6 +336,39 @@
             The application creates its data directory at runtime. Code signing is not configured by
             default; distribution owners must supply their own signing credentials and perform
             platform release checks.
+          </p>
+        </section>
+        <section id="ci-security">
+          <h2>CI packaging and public-repository security</h2>
+          <p>
+            Electron Builder 26 infers publishing from CI or Git tags when no publish policy is
+            specified. This caused the initial CI workflow to build a valid installer and then fail
+            asking for GH_TOKEN. Both packaging scripts now use <code>--publish never</code>. The
+            current workflow retains <code>contents: read</code>, disables checkout credential
+            persistence, and uses Actions artifact upload rather than GitHub Releases. The artifact
+            step fails explicitly if the installer is missing. Adding a PAT or broadening CI write
+            permissions would grant unnecessary authority and is not the fix.
+          </p>
+          <p>
+            A future intentional release job should run only trusted code from protected tags or an
+            approved manual trigger, scope <code>contents: write</code> to that job, and pass
+            GitHub's generated <code>GITHUB_TOKEN</code> as <code>GH_TOKEN</code> only to an
+            explicit publishing step. Public pull-request builds must not run with release
+            credentials. Windows signing certificates are a separate concern; a GitHub token does
+            not sign the executable.
+          </p>
+          <p>
+            GitHub-hosted runners remain the default. Self-hosted public-PR runners can expose a
+            persistent machine and its network to untrusted code, including package install scripts.
+            Any future self-hosted release runner should be a restricted, disposable environment
+            isolated from business or personal machines. See the
+            <a href="https://www.electron.build/v26/docs/publish/"
+              >version 26 publishing documentation</a
+            >
+            and
+            <a href="https://docs.github.com/en/actions/reference/security/secure-use"
+              >GitHub's security guidance</a
+            >.
           </p>
         </section>
         <section id="validation">

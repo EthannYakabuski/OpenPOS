@@ -302,6 +302,14 @@
       <section>
         <h2>Build and distribution</h2>
         <p>
+          Public pull requests and repository pushes run on GitHub-hosted Windows runners with
+          read-only repository contents permission. Checkout credentials are not persisted. The
+          packaging scripts explicitly disable publishing and the workflow uploads the installer to
+          Actions artifact storage. Release publication is a separate future trust boundary: only a
+          trusted release job should receive repository write permission and a temporary publishing
+          token. No release token is required to build or test the application.
+        </p>
+        <p>
           Webpack compiles the TypeScript main process, preload bridge and React renderer. Electron
           Builder packages the resulting application and produces an NSIS installer for Windows x64.
           The installer creates Start menu and desktop shortcuts and installs per machine. Runtime

@@ -22,8 +22,8 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "verify": "yarn typecheck && yarn test && yarn build && yarn test:e2e",
-    "pack": "yarn build && electron-builder --win --x64 --dir",
-    "dist": "yarn build && electron-builder --win nsis --x64"
+    "pack": "yarn build && electron-builder --win --x64 --dir --publish never",
+    "dist": "yarn build && electron-builder --win nsis --x64 --publish never"
   },
   "dependencies": {
     "@mdi/js": "7.4.47",

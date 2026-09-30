@@ -59,7 +59,19 @@ yarn dist
 
 The NSIS installer is produced at `release/OpenPOS-0.1.0-Setup-x64.exe`. It installs per machine and creates desktop and Start menu shortcuts. The application initializes each Windows user’s `.openpos` data on first launch, avoiding the administrator-profile problem that can occur when an elevated installer writes user data.
 
-`yarn pack` produces an unpacked Windows application for local verification. Installation requires elevation when Windows requests it. No public download URL or code-signing certificate is bundled; publish built installers through your chosen release process and configure signing before broad distribution.
+`yarn run pack` produces an unpacked Windows application for local verification (use `run` to avoid Yarn's built-in archive command). Installation requires elevation when Windows requests it. No public download URL or code-signing certificate is bundled; publish built installers through your chosen release process and configure signing before broad distribution.
+
+### CI artifacts and release permissions
+
+`yarn dist` and `yarn run pack` explicitly use `--publish never`. They build local artifacts even when running in CI or on a Git tag. Electron Builder 26 otherwise infers publishing from CI and can fail after building the installer with a missing `GH_TOKEN` error. No personal access token or repository secret is needed for the current build workflow.
+
+After a successful run, open **GitHub → Actions → Build and verify OpenPOS → the run → Artifacts → OpenPOS-Windows-x64** to download the installer. The workflow keeps `contents: read`, does not leave checkout credentials in Git configuration, and uploads the installer using Actions artifact storage. This does not create a GitHub Release.
+
+If release publishing is added later, use a separate job restricted to trusted, protected release tags or an approved manual run on trusted code. Grant only that job `contents: write`, pass `GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}` to its publishing step, and explicitly invoke `electron-builder --win nsis --x64 --publish always`. GitHub supplies that short-lived, repository-scoped token automatically; a PAT is unnecessary for releases in this repository. Do not add write permissions or publishing secrets to pull-request builds, and do not use `pull_request_target` to run untrusted pull-request code. Windows code-signing credentials are separate from GitHub publishing credentials.
+
+Keep GitHub-hosted Windows runners for public pull-request CI. A persistent self-hosted runner can be compromised by code in a pull request, including dependency installation scripts. If a future trusted release process needs self-hosting, use a dedicated disposable VM, restrict which trusted workflows may use it, and isolate it from personal or shop devices and networks. Moving the current workflow to a self-hosted runner would not fix implicit publishing.
+
+References: [Electron Builder 26 publishing policy](https://www.electron.build/v26/docs/publish/), [GitHub token permissions](https://docs.github.com/en/actions/tutorials/authenticate-with-github_token), and [GitHub runner security guidance](https://docs.github.com/en/actions/reference/security/secure-use).
 
 ## Verify changes
 
@@ -84,7 +96,7 @@ Or run the full sequence with `yarn verify`. `yarn test:watch` runs unit tests d
 | `yarn test` / `yarn test:watch`     | Run unit/integration tests once or continuously          |
 | `yarn test:e2e`                     | Run the actual desktop workflow checks                   |
 | `yarn verify`                       | Type checking, tests, build and desktop checks           |
-| `yarn pack` / `yarn dist`           | Create an unpacked app or NSIS installer                 |
+| `yarn run pack` / `yarn dist`       | Create an unpacked app or NSIS installer                 |
 | `yarn format` / `yarn format:check` | Format the maintained source or check its formatting     |
 
 ## Set up a shop
