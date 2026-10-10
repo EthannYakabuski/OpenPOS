@@ -299,6 +299,24 @@
           standalone or remote cloud operation.
         </p>
       </section>
+      <section id="android-ci-sdk-setup">
+        <h2>Android CI SDK setup correction · October 9, 2026</h2>
+        <p>
+          The reported hosted job failed before compilation because the setup action requested the
+          obsolete <code>tools</code> SDK package. The workflow now explicitly requests
+          <code>platform-tools</code>; modern command-line tools and the existing API 36 / Build
+          Tools 36.0.0 installation remain in place. The override was checked against the upstream
+          action's input definition and implementation.
+        </p>
+        <p>
+          Local verification parsed the workflow YAML, checked the explicit SDK package selection
+          and confirmed that triggers, permissions, and all build, test and artifact steps remain
+          unchanged. Formatting and whitespace checks passed. No application code changed, so the
+          application suites were not repeated for this correction. A GitHub-hosted run of the
+          updated commit is still required to verify SDK installation and the complete CI build; the
+          earlier application results above are separate verification records.
+        </p>
+      </section>
       <section>
         <h2>Before a live deployment</h2>
         <ul>

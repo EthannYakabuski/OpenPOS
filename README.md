@@ -95,6 +95,8 @@ The debug APK is `apps/android/app/build/outputs/apk/debug/app-debug.apk`. The r
 
 ## Verify changes
 
+Android CI installs explicit SDK packages to avoid the setup action's obsolete `tools` default. See [Android CI setup and troubleshooting](docs/android.md#public-repository-ci-and-google-play) if SDK setup fails before compilation.
+
 The initial Windows build passed **41 unit/integration tests and all 6 desktop workflows against the packaged executable**. The Android extension passed **49 shared unit/integration tests and 8 native JVM tests**, both production builds, Windows installer and Android APK/AAB generation. All ten interface scenarios were validated across a full run and a targeted rerun after a phone layout fix. The final APK also passed an actual Android emulator pairing/order/completion/admin-lock smoke test against an isolated Windows master. See the [verification record](docs/verification.html#android-october-2026) for exact scope, artifact checksums and physical-hardware checks still needed before live use.
 
 ```powershell

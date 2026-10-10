@@ -65,6 +65,8 @@ An upload key and a Play-managed app-signing key serve different roles. Configur
 
 ## Public-repository CI and Google Play
 
+The Android workflow explicitly sets `android-actions/setup-android@v3` to `packages: platform-tools`, then installs `platforms;android-36` and `build-tools;36.0.0`. The action's default includes the deprecated `tools` package, which can fail with `Failed to find package 'tools'` before the application build starts. Modern command-line tools replace that package and are installed separately by the action. This setup failure does not require a secret or a self-hosted runner. After applying the workflow fix, run CI on the updated commit; rerunning an older failed commit still uses its old workflow. See the [action's package input](https://github.com/android-actions/setup-android/tree/v3#additional-packages) and [Android SDK tools documentation](https://developer.android.com/tools).
+
 Public pull-request builds do not need signing credentials, Google Cloud service accounts or Play access. Keep CI read-only and upload only unsigned build/test artifacts. A future signed-release job must be separate, restricted to reviewed trusted code, with protected secret access. Do not expose release secrets to untrusted pull requests or persistent public self-hosted runners. No automatic Play publication is configured here.
 
 When ready to release, complete these owner-managed steps:

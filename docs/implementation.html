@@ -423,6 +423,13 @@
             no production key is generated, committed or provided to untrusted pull requests.
           </p>
           <p>
+            Android CI overrides the setup action's package list with
+            <code>packages: platform-tools</code>, avoiding its obsolete <code>tools</code>
+            default. The action still supplies modern command-line tools; the following step
+            explicitly installs platform API 36 and Build Tools 36.0.0. The reported missing-package
+            failure occurred before compilation and needs no signing secret or runner change.
+          </p>
+          <p>
             The Android package includes a native dependency notice inventory at
             <code>apps/android/app/src/main/assets/ANDROID-THIRD-PARTY-NOTICES.txt</code>, covering
             resolved runtime coordinates, metadata sources and license/notice texts. Native
