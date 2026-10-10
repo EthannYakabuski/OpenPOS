@@ -28,14 +28,16 @@
         ><a href="#settings">6. Configure your business</a
         ><a href="#admin">7. Administrator access</a><a href="#audit">8. Understand your sales</a
         ><a href="#network">9. Connect devices</a><a href="#data">10. Data and backups</a
+        ><a href="#android">Android phones and tablets</a
         ><a href="#manual-json">11. Edit menu JSON</a><a href="#troubleshooting">12. Get unstuck</a>
       </aside>
       <main>
         <section id="quick-start">
           <h2>1. Get started</h2>
           <p class="lead">
-            OpenPOS runs on Windows 10 or newer, on a 64-bit computer or tablet. Large controls work
-            with either a tap or a mouse click.
+            OpenPOS runs on Windows 10 or newer, on a 64-bit computer or tablet. Android phones and
+            tablets can connect to that Windows master on the shop’s private network. Large controls
+            work with either a tap or a mouse click.
           </p>
           <div class="cards two">
             <div class="card">
@@ -166,8 +168,8 @@
           <p>
             Each saved order has a printable receipt showing the business name, order information,
             item quantities and prices, selected fees, tax and total. Use its receipt action to open
-            the printer workflow. Select the correct printer in Windows and check the first printed
-            result before service.
+            the printer workflow. Select the correct printer in Windows or the Android system print
+            dialog and check the first printed result before service.
           </p>
           <p>
             The receipt records the order total. It is not proof that an external card terminal or
@@ -385,8 +387,8 @@
             On a connected client, unlock with the <strong>master’s administrator password</strong>.
             The master grants that client a temporary session; changing the master password or
             restarting the master revokes client sessions. Set a local password before pairing a
-            kitchen installation; it can be used to repair that device’s connection settings while
-            disconnected. This does not permit offline changes to the shared business records.
+            Windows kitchen installation; it can be used to repair that device’s connection settings
+            while disconnected. This does not permit offline changes to the shared business records.
           </p>
           <div class="callout amber">
             <strong>Protect the Windows account too</strong>
@@ -417,17 +419,18 @@
             the original sale.
           </p>
           <p>
-            Use <strong>Export report</strong> for a CSV copy. Keep original backups too: an
-            exported summary does not contain the entire recoverable shop state. Order corrections
-            update the current reporting record; OpenPOS is not an immutable financial ledger.
+            Use <strong>Export report</strong> for a CSV copy. On Android, choose an appropriate app
+            or destination from the system share sheet. Keep original backups too: an exported
+            summary does not contain the entire recoverable shop state. Order corrections update the
+            current reporting record; OpenPOS is not an immutable financial ledger.
           </p>
         </section>
         <section id="network">
           <h2>9. Connect a counter and a kitchen</h2>
           <p>
             A single shop uses one authoritative <strong>primary (master)</strong> and registered
-            <strong>clients</strong>. Every computer uses the same installer. All devices must be
-            reachable over a trusted local network.
+            <strong>clients</strong>. Windows computers use the same installer; Android phones and
+            tablets use the Android app. All devices must be reachable over a trusted local network.
           </p>
           <div
             class="flow"
@@ -461,7 +464,7 @@
               reachable from the kitchen device.
             </li>
           </ol>
-          <h3>On each kitchen device</h3>
+          <h3>On each Windows kitchen device</h3>
           <ol>
             <li>
               Set a local administrator password before pairing, so connection settings can be
@@ -508,11 +511,96 @@
             Windows user profile on one physical device is still a separate local dataset.
           </p>
         </section>
+        <section id="android">
+          <h2>Connect an Android phone or tablet</h2>
+          <p>
+            The Android app uses the shop’s Windows master. Keep that master running and connect
+            your phone or tablet to the same trusted private Wi-Fi. Set the master’s administrator
+            password before pairing. Android does not need its own demonstration shop: the connected
+            master supplies the menu, stock and orders.
+          </p>
+          <ol>
+            <li>
+              On Android, open <strong>Connect to your business</strong>. Enter a recognizable
+              <strong>Device name</strong>, such as “Kitchen tablet”.
+            </li>
+            <li>
+              Copy the read-only <strong>This client’s ID</strong>. On Windows, unlock Configuration
+              and open <strong>This device → Registered clients</strong>; register that exact ID and
+              a recognizable name.
+            </li>
+            <li>
+              On Android, enter <strong>Primary device URL</strong>, for example
+              <code>http://192.168.1.20:3210</code>, using your actual Windows master’s private IPv4
+              address and listening port. Public internet addresses and hostnames are not accepted.
+            </li>
+            <li>
+              Enter the master’s <strong>Connection key</strong>. This field is masked; keep the key
+              private. It must match the master’s key and contain at least 24 characters.
+            </li>
+            <li>
+              Choose <strong>Open on launch</strong>: Menu Items for taking orders or Orders for
+              kitchen preparation. Select <strong>Connect to primary device</strong>.
+            </li>
+            <li>
+              Check the connection status and place a test order. Confirm that changes appear on
+              Windows and that completing an order updates stock once.
+            </li>
+          </ol>
+          <h3>Daily use on a small screen</h3>
+          <p>
+            Phones let you switch between <strong>Menu</strong> and <strong>Current order</strong>.
+            Tablets with enough horizontal space show the menu and order together. The same menu
+            editor, stock controls and reports are available after administrator unlock; there is no
+            separate mobile catalog to keep updated.
+          </p>
+          <p>
+            Use the <strong>master’s administrator password</strong> to unlock protected features.
+            Android locks administrator access when the app goes into the background; unlock again
+            when you return. Change the administrator password on Windows. Keep the phone or tablet
+            protected with its own screen lock.
+          </p>
+          <h3>Repair a connection</h3>
+          <p>
+            The <strong>Connection</strong> toolbar action opens Android connection setup. This is
+            separate from normal business settings: menus, inventory, tax and fees use the
+            administrator password and do not ask for the connection key. Changes to an existing
+            pairing require administrator access, and every save of Connection settings requires
+            re-entering the full master connection key—even when already unlocked. The saved key is
+            never displayed or used as permission to change the connection. Saving connection
+            settings clears the unsaved current order, so finish or discard that ticket before
+            changing the connection. If the master cannot be reached, use the explicit
+            <strong>Re-pair this device</strong> flow and enter the full connection key again.
+            Confirm the device ID is still registered, the Windows address has not changed, and both
+            devices are on the same private network.
+          </p>
+          <div class="callout amber">
+            <strong>The master is still required.</strong>
+            <p>
+              Android cannot save orders or business settings while disconnected and does not
+              maintain a separate shop ledger. Reconnect before continuing. This version does not
+              provide access from home or through the public internet. Do not forward the master’s
+              listening port through your router.
+            </p>
+          </div>
+          <p>
+            Help opens the bundled guide in an external browser or HTML viewer chosen through
+            Android. It does not require downloading the handbook. Use the Android system print
+            dialog for receipts and the system share sheet for report files. Test your actual
+            printer and receiving apps before service. Create backups, use Start fresh, open the
+            data folder or edit JSON on the Windows master; those maintenance tools are not Android
+            actions.
+          </p>
+          <p>
+            Install the Android app from the publisher’s official Google Play listing when
+            available. This handbook does not assert that a public listing is already live.
+          </p>
+        </section>
         <section id="data">
           <h2>10. Data and backups</h2>
           <p>
-            On first launch, OpenPOS creates <code>%USERPROFILE%\.openpos</code>. The data belongs
-            to the signed-in Windows user, not the application installation folder. Use
+            On first launch on Windows, OpenPOS creates <code>%USERPROFILE%\.openpos</code>. The
+            data belongs to the signed-in Windows user, not the application installation folder. Use
             <strong>Configuration → Business → Open data folder</strong> to locate it. Development
             launches use a separate <code>.dev-data</code> folder in the source repository.
           </p>
@@ -707,9 +795,10 @@
           <details>
             <summary>The printer output is wrong</summary>
             <p>
-              Check the selected Windows printer, paper size and margins. Print one test receipt.
-              The operating system and printer driver determine available printers and paper
-              handling; no dedicated cash-drawer or ESC/POS control is included.
+              Check the selected printer, paper size and margins. On Android, confirm a compatible
+              print service is installed and enabled in Android settings. Print one test receipt on
+              the actual device. The operating system and printer driver determine available
+              printers and paper handling; no dedicated cash-drawer or ESC/POS control is included.
             </p>
           </details>
           <details>

@@ -9,3 +9,10 @@ playwright-report/
 *.log
 .tools/
 .cache/
+.gradle/
+**/local.properties
+**/*.jks
+**/*.keystore
+**/keystore.properties
+.env
+.env.*

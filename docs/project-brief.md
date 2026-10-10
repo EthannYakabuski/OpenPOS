@@ -120,3 +120,13 @@ Take as long as you need, use as many tokens as you need, perform as much testin
 
 Any further prompts in this chat should follow the above acceptance criteria as well, unless specific conflicts or objections arise (for example updating the help documentation, updating the architectural diagram, updating the implementation notes .. etc)
 ```
+
+## Android extension — October 9, 2026
+
+The original Windows acceptance criteria remain in effect. The following follow-up authorizes adding an Android edition in this repository using Capacitor to share the React interface. Google Play / Google Cloud administration is deferred by the user. The implementation treats Android as a connected client of the Windows master; scope and release assumptions are documented in [implementation decisions](implementation.html#android) and the [Android guide](android.md). Assistant identity for this continuation is **Codex (GPT-6 family; exact deployed variant/build not exposed)**.
+
+### Follow-up request (verbatim)
+
+```text
+yeah if you think Capacitor will work (and output easily installable android applications) (i would need an .aab to upload it to google play through my developer account there so that customers dont need to "sideboot" or anything potentially sketchy - they can download official app from official google play store) (i can handle the google play services and google cloud admin configuration stuff at a later date - as long as the application has been refactored and added to the repo that sounds good to me if you think Godot would add too much drift between the two versions of the application. does capacitor support this?
+```

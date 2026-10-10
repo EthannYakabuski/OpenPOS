@@ -164,7 +164,33 @@ export interface AuditReport {
   inventory: { id: string; name: string; unit: string; quantity: number }[];
   daily: { date: string; gross: number; orders: number }[];
 }
+export interface MobileConnection {
+  deviceName: string;
+  clientId: string;
+  serverUrl: string;
+  defaultTab: 'menu' | 'orders';
+  configured: boolean;
+}
+export interface MobileConnectionInput {
+  deviceName: string;
+  clientId: string;
+  serverUrl: string;
+  defaultTab: 'menu' | 'orders';
+  syncKey?: string;
+  rePair?: boolean;
+}
+export interface PlatformCapabilities {
+  print: boolean;
+  exportAudit: boolean;
+  backup: boolean;
+  dataFolder: boolean;
+  connectionSettings: boolean;
+}
 export interface OpenPOSAPI {
+  readonly platform?: 'windows' | 'android';
+  readonly capabilities?: PlatformCapabilities;
+  getConnection?(): Promise<MobileConnection>;
+  saveConnection?(connection: MobileConnectionInput): Promise<Snapshot>;
   getSnapshot(): Promise<Snapshot>;
   execute(command: Command): Promise<Snapshot>;
   unlock(password: string): Promise<Snapshot>;

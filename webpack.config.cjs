@@ -1,7 +1,7 @@
 const path = require('node:path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyPlugin = require('copy-webpack-plugin');
-module.exports = (_, argv) => {
+module.exports = (env = {}, argv) => {
   const production = argv.mode === 'production';
   const common = {
     mode: production ? 'production' : 'development',
@@ -21,6 +21,29 @@ module.exports = (_, argv) => {
     },
     stats: 'errors-warnings'
   };
+  if (env.android)
+    return {
+      ...common,
+      name: 'android',
+      target: 'web',
+      entry: './src/android/index.tsx',
+      output: { path: path.resolve('dist/android'), filename: 'app.js', clean: true },
+      module: {
+        rules: [...common.module.rules, { test: /\.css$/, use: ['style-loader', 'css-loader'] }]
+      },
+      plugins: [
+        new HtmlWebpackPlugin({ template: './src/renderer/index.html', inject: 'body' }),
+        new CopyPlugin({
+          patterns: [
+            { from: 'docs/help.html', to: 'help/help.html' },
+            { from: 'docs/style.css', to: 'help/style.css' },
+            { from: 'assets/THIRD-PARTY-NOTICES.txt', to: 'THIRD-PARTY-NOTICES.txt' },
+            { from: 'LICENSE', to: 'LICENSE.txt' }
+          ]
+        })
+      ],
+      performance: { hints: false }
+    };
   return [
     {
       ...common,

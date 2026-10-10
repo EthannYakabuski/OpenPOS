@@ -3095,3 +3095,496 @@ th {
   font-size: 12px;
   margin: 0;
 }
+
+/* Both platform shells share one responsive interface. Android supplies a safe-area viewport. */
+.phone-pane-switch {
+  display: none;
+}
+[data-platform='android'] .app-shell {
+  height: 100dvh;
+  min-height: 0;
+  padding: var(--safe-area-inset-top, env(safe-area-inset-top, 0px))
+    var(--safe-area-inset-right, env(safe-area-inset-right, 0px))
+    var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px))
+    var(--safe-area-inset-left, env(safe-area-inset-left, 0px));
+}
+[data-platform='android'] .modal-backdrop {
+  padding-top: max(16px, var(--safe-area-inset-top, env(safe-area-inset-top, 0px)));
+  padding-bottom: max(16px, var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)));
+}
+.android-onboarding {
+  min-height: 100dvh;
+  padding: max(24px, var(--safe-area-inset-top, env(safe-area-inset-top, 0px)))
+    max(16px, var(--safe-area-inset-right, env(safe-area-inset-right, 0px)))
+    max(24px, var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)))
+    max(16px, var(--safe-area-inset-left, env(safe-area-inset-left, 0px)));
+  display: grid;
+  place-items: center;
+}
+.onboarding-card {
+  width: min(100%, 660px);
+  background: #fff;
+  padding: 32px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+}
+.onboarding-card > .brand-mark {
+  margin-bottom: 18px;
+}
+.connection-steps {
+  background: #f1f5ef;
+  border-radius: 10px;
+  padding: 18px;
+  margin: 20px 0;
+}
+.connection-steps ol {
+  padding-left: 22px;
+  margin-bottom: 12px;
+}
+.connection-steps li {
+  line-height: 1.65;
+  margin-bottom: 10px;
+}
+.connection-steps p {
+  margin-bottom: 0;
+}
+.connection-fields {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
+.connection-fields:disabled {
+  opacity: 0.6;
+}
+.connection-submit {
+  width: 100%;
+  white-space: normal;
+}
+.connection-footnote {
+  font-size: 12px;
+  margin-top: 20px;
+}
+.connection-summary .primary {
+  margin-bottom: 18px;
+}
+.re-pair-choice {
+  white-space: normal;
+  align-items: flex-start;
+  margin: 20px 0;
+  line-height: 1.5;
+}
+.re-pair-choice input {
+  flex-shrink: 0;
+  margin-top: 3px;
+}
+.warning-banner > .text-button {
+  margin-left: 8px;
+}
+
+@media (max-width: 760px) {
+  .app-shell {
+    flex-direction: column;
+    height: 100dvh;
+    min-height: 0;
+    overflow: hidden;
+  }
+  .sidebar {
+    position: static;
+    width: 100%;
+    min-width: 0;
+    padding: 6px 10px;
+    flex-direction: row;
+    align-items: center;
+    gap: 6px;
+  }
+  .sidebar > .brand,
+  .sidebar .workspace-label,
+  .sidebar .connection-status {
+    display: none;
+  }
+  .sidebar nav {
+    flex: 1;
+    flex-direction: row;
+    gap: 5px;
+    margin: 0;
+  }
+  .sidebar nav button {
+    flex: 1;
+    min-height: 48px;
+    padding: 8px 10px;
+    gap: 7px;
+    font-size: 12px;
+  }
+  .sidebar nav button > span {
+    display: inline;
+  }
+  .sidebar nav button > .nav-count {
+    display: none;
+  }
+  .sidebar-bottom {
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+  .sidebar .admin-control {
+    min-height: 48px;
+    width: 48px;
+  }
+  .sidebar .admin-control > svg,
+  .sidebar .admin-control > span:nth-child(2) {
+    display: none;
+  }
+  .app-main {
+    margin-left: 0;
+    min-height: 0;
+    overflow: hidden;
+  }
+  .topbar {
+    height: auto;
+    min-height: 0;
+    position: static;
+    flex-wrap: wrap;
+    padding: 10px 12px;
+    gap: 9px;
+  }
+  .topbar .business-heading {
+    width: 100%;
+  }
+  .topbar .business-heading > strong {
+    max-width: none;
+    font-size: 14px;
+  }
+  .topbar .business-heading > span {
+    display: none;
+  }
+  .toolbar {
+    flex: 1;
+    gap: 6px;
+  }
+  .toolbar-button {
+    min-width: 44px;
+    min-height: 44px;
+    flex: 1;
+    padding: 8px;
+  }
+  .toolbar-button span {
+    display: inline;
+    font-size: 12px;
+  }
+  .phone-pane-switch {
+    display: flex;
+    gap: 8px;
+    padding: 10px 12px;
+    background: #fff;
+    border-bottom: 1px solid var(--border);
+  }
+  .phone-pane-switch button {
+    flex: 1;
+    min-height: 44px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    background: #f0f3eb;
+    color: var(--forest);
+    font-weight: 600;
+  }
+  .phone-pane-switch button[aria-pressed='true'] {
+    background: var(--green);
+    color: #fff;
+  }
+  .phone-pane-switch button > span {
+    background: #ffffff29;
+    border-radius: 12px;
+    padding: 2px 7px;
+  }
+  .main-content,
+  .menu-layout {
+    overflow: auto;
+    overscroll-behavior: contain;
+  }
+  .phone-show-menu .cart-panel,
+  .phone-show-cart .menu-pane {
+    display: none;
+  }
+  .menu-pane {
+    flex: none;
+    padding: 20px 14px;
+  }
+  .cart-panel {
+    flex: 1 0 auto;
+    margin: 0;
+    border: 0;
+    border-radius: 0;
+    width: 100%;
+  }
+  .cart-heading,
+  .cart-footer {
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+  .cart-scroll {
+    flex: 1 0 auto;
+    overflow: visible;
+    padding: 0 18px;
+  }
+  .cart-footer {
+    border-radius: 0;
+  }
+  .cart-line-top > div,
+  .cart-line-top > strong,
+  .order-customer > strong {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  .setup-banner {
+    flex-wrap: wrap;
+    font-size: 12px;
+    padding: 8px 12px;
+  }
+  .setup-banner button {
+    min-height: 36px;
+    max-width: none;
+    font-size: 12px;
+  }
+  .warning-banner {
+    padding: 8px 12px;
+  }
+  .warning-banner > .text-button {
+    display: inline-flex;
+    margin: 0;
+    padding: 6px 0;
+    min-height: 36px;
+  }
+  .menu-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+  .menu-card-info > strong {
+    overflow-wrap: anywhere;
+  }
+  .category-row {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 12px;
+  }
+  .category-chip {
+    flex-shrink: 0;
+    min-height: 44px;
+  }
+  .orders-view,
+  .audit-view {
+    padding: 20px 14px;
+    min-width: 0;
+  }
+  .page-heading {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .section-heading {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .order-filters {
+    flex-wrap: wrap;
+  }
+  .order-filters .search-input {
+    width: 100%;
+  }
+  .order-columns,
+  .audit-lower {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .audit-filters,
+  .date-fields {
+    width: 100%;
+  }
+  .date-fields .field {
+    flex: 1;
+  }
+  .date-fields input {
+    width: 100%;
+  }
+  .table-scroll,
+  .chart-container {
+    max-width: 100%;
+    overflow-x: auto;
+  }
+  .audit-panel,
+  .audit-chart-panel,
+  .order-column {
+    min-width: 0;
+  }
+  .metric-grid {
+    gap: 10px;
+  }
+  .metric-card {
+    padding: 14px;
+    min-width: 0;
+  }
+  .metric-card > strong {
+    overflow-wrap: anywhere;
+    font-size: 23px;
+  }
+  .metric-label {
+    font-size: 12px;
+    margin-bottom: 12px;
+  }
+  .metric-card > small {
+    font-size: 11px;
+  }
+  .modal-backdrop {
+    padding: 10px;
+  }
+  .modal {
+    max-height: calc(
+      100dvh - max(20px, var(--safe-area-inset-top, env(safe-area-inset-top, 0px))) -
+        max(20px, var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)))
+    );
+  }
+  .modal-heading,
+  .modal-body {
+    padding: 18px;
+  }
+  .modal-footer {
+    flex-wrap: wrap;
+    padding: 12px 18px;
+  }
+  .modal-footer button {
+    min-height: 44px;
+  }
+  .dialog-tabs {
+    gap: 12px;
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+  .dialog-tabs > button {
+    min-height: 44px;
+    font-size: 13px;
+  }
+  .field input,
+  .field select,
+  .field textarea,
+  .customer-fields input,
+  .customer-fields textarea {
+    font-size: 16px;
+  }
+  .field > span,
+  .field > small {
+    font-size: 12px;
+  }
+  .copy-field input {
+    font-size: 13px;
+  }
+  .recipe-row {
+    grid-template-columns: minmax(0, 1fr) minmax(75px, 0.6fr) 44px;
+  }
+  .fee-editor {
+    grid-template-columns: minmax(0, 1fr) minmax(75px, 0.6fr) 44px;
+  }
+  .recipe-row .icon-button,
+  .inventory-row .icon-button,
+  .quantity-stepper button,
+  .cart-heading .icon-button,
+  .menu-edit,
+  .order-card > footer .icon-button {
+    width: 44px;
+    height: 44px;
+  }
+  .fee-chips button,
+  .fulfillment-options button,
+  .checkbox-field,
+  .show-hidden {
+    min-height: 44px;
+  }
+  .onboarding-card {
+    padding: 22px 18px;
+  }
+  .connection-steps {
+    padding: 14px;
+  }
+  .receipt-paper {
+    padding: 18px;
+  }
+  .receipt-line > div {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  .toast {
+    left: 12px;
+    right: 12px;
+    bottom: max(16px, var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)));
+    transform: none;
+    max-width: none;
+    width: auto;
+  }
+}
+@media (max-width: 480px) {
+  .toolbar-button {
+    flex-direction: column;
+    gap: 3px;
+  }
+  .toolbar-button span {
+    display: block;
+    font-size: 10px;
+  }
+  .toolbar {
+    gap: 4px;
+  }
+  .toolbar-button {
+    padding: 6px 3px;
+  }
+  .toolbar-button.help {
+    margin-left: 0;
+  }
+  .menu-card-info {
+    padding: 10px;
+  }
+  .menu-card-info > strong {
+    font-size: 14px;
+  }
+  .menu-description {
+    display: none;
+  }
+  .menu-card-bottom {
+    margin-top: 10px;
+  }
+  .inventory-top {
+    flex-wrap: wrap;
+  }
+  .inventory-top > .search-input {
+    flex-basis: 100%;
+  }
+  .inventory-row {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .inventory-name {
+    flex-basis: calc(100% - 86px);
+  }
+  .inventory-row .secondary {
+    margin-left: auto;
+  }
+  .inventory-name strong {
+    font-size: 14px;
+  }
+  .inventory-name small {
+    font-size: 12px;
+  }
+  .locked-panel {
+    padding: 20px 4px;
+  }
+  .audit-panel .section-heading select {
+    width: 100%;
+    font-size: 14px;
+  }
+  .table-scroll table {
+    min-width: 290px;
+  }
+  .security-status {
+    align-items: flex-start;
+    line-height: 1.5;
+  }
+}

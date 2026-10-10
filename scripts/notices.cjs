@@ -1,7 +1,17 @@
 const fs = require('node:fs');
 const path = require('node:path');
 
-const names = ['react', 'react-dom', 'scheduler', '@mdi/js', '@mdi/react', 'webpack'];
+const names = [
+  'react',
+  'react-dom',
+  'scheduler',
+  '@mdi/js',
+  '@mdi/react',
+  'webpack',
+  '@capacitor/core',
+  '@capacitor/android',
+  '@capacitor/app'
+];
 const notices = names.map((name) => {
   const folder = path.dirname(require.resolve(`${name}/package.json`));
   const information = JSON.parse(fs.readFileSync(path.join(folder, 'package.json'), 'utf8'));

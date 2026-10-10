@@ -28,6 +28,7 @@
         ><a href="#storage">Files and durability</a><a href="#sync">Master and client</a
         ><a href="#security">Security and access</a
         ><a href="#experience">Experience and packaging</a><a href="#ci-security">CI and releases</a
+        ><a href="#android">Android and shared interface</a
         ><a href="#validation">Validation strategy</a><a href="#limitations">Known limits</a>
       </aside>
       <main>
@@ -371,6 +372,72 @@
             >.
           </p>
         </section>
+        <section id="android">
+          <h2>Android client and a shared interface</h2>
+          <p>
+            The October 9, 2026 extension chooses Capacitor instead of a separate Godot interface.
+            It preserves React workspaces and TypeScript contracts in one repository while adding
+            <code>src/android</code> and the native project at <code>apps/android</code>. Existing
+            Windows source paths and build commands remain intact; moving every desktop file merely
+            to create a symmetrical folder tree would add unrelated risk.
+          </p>
+          <p>
+            Android is initially a connected client. This avoids duplicating trusted prices, tax,
+            inventory transitions and permission logic in a second local engine. Phones adapt the
+            workspace for owner setup and smaller displays; tablets support normal order-taking and
+            kitchen work. The Windows master must remain available. Standalone Android, offline
+            order merging, cloud hosting and configuration from outside the shop are not part of
+            this extension.
+          </p>
+          <p>
+            A small platform contract separates shared React screens from Electron operations.
+            Android implements it through a Capacitor adapter and an allowlisted native bridge. The
+            bridge stores connection material encrypted using an Android Keystore-backed key, does
+            not expose the saved sync key through snapshots, and restricts requests to a numeric
+            private IPv4 HTTP master URL. It generates the protocol signatures and leaves
+            validation, replay checks and authorization at the existing master boundary.
+            Administrator sessions expire on backgrounding. Generic Capacitor HTTP and WebView path
+            mutation plugins are replaced with deny-only implementations; the WebView allows bundled
+            localhost resources and rejects raw file/content helper routes. Native logging is
+            disabled. These measures do not encrypt LAN traffic; customer details, reports and
+            credentials sent over HTTP require a trusted private network.
+          </p>
+          <p>
+            Initial pairing displays a stable read-only client ID to register on Windows. Every save
+            of local Connection settings requires the full master connection key, enforced in the
+            native bridge even for an unlocked administrator. The stored key cannot be reused as
+            permission to change its destination. A deliberate re-pair flow supports offline
+            recovery with full credentials. This is separate from shared business configuration:
+            menu, inventory, tax and reports use the administrator password/session only. Android
+            does not create or upload a demonstration ledger. Backups, data-folder actions, manual
+            JSON editing, password changes and Start fresh remain Windows operations. Receipts use
+            Android system printing and CSV exports use file sharing; actual printers and receiving
+            applications require device validation.
+          </p>
+          <p>
+            The Android package initially uses <code>org.openpos.mobile</code>, targets API 36 and
+            requires Android 8.0 / API 26. Confirm the application ID before first publication and
+            then keep it stable. The repository builds APKs for testing and AABs for Play
+            distribution. Unsigned release bundles are the default, including public CI. Signing is
+            explicit and reads an external upload keystore and passwords from environment variables;
+            no production key is generated, committed or provided to untrusted pull requests.
+          </p>
+          <p>
+            The Android package includes a native dependency notice inventory at
+            <code>apps/android/app/src/main/assets/ANDROID-THIRD-PARTY-NOTICES.txt</code>, covering
+            resolved runtime coordinates, metadata sources and license/notice texts. Native
+            dependency changes require reviewing and refreshing this inventory as well as the web
+            notices.
+          </p>
+          <p>
+            The requested deliverable is the refactor and native project, not a live Play listing.
+            Google Play account setup, signing enrollment, listing, privacy/Data safety
+            declarations, current policy review and release-track device checks are deferred to the
+            owner. A signed bundle is a necessary publishing input, not proof of Play acceptance.
+            See the <a href="android.md">Android development and release guide</a> for exact build
+            and signing instructions.
+          </p>
+        </section>
         <section id="validation">
           <h2>Validation strategy</h2>
           <p>
@@ -385,8 +452,10 @@
             <code>yarn test</code> runs unit and integration checks.
             <code>yarn test:e2e</code> checks the desktop workflow. <code>yarn build</code> verifies
             compilation and resource copying, while <code>yarn dist</code> exercises installer
-            generation. See the repository test output for executed results; this document describes
-            the required strategy rather than pretending every future machine is validated.
+            generation. For Android, build and synchronize the web target, run native tests and
+            generate APK/AAB artifacts; physical phone/tablet and Play checks are separate. See the
+            repository test output for executed results; this document describes the required
+            strategy rather than pretending every future machine is validated.
           </p>
           <div class="callout">
             <strong>Release verification still belongs on the target hardware.</strong>

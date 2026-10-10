@@ -11,8 +11,8 @@
       <p class="eyebrow">OpenPOS · Engineering reference · Source only</p>
       <h1>A local shop.<br />A single source of truth.</h1>
       <p>
-        React handles the counter experience. Electron owns files and trusted operations. One master
-        coordinates connected devices.
+        A shared React interface runs in Electron on Windows and Capacitor on Android. The Windows
+        master owns business files and trusted operations; connected devices submit changes to it.
       </p>
     </header>
     <nav class="topnav" aria-label="Documentation">
@@ -24,11 +24,144 @@
     </nav>
     <div class="wrap">
       <section>
-        <h2>Inside one installation</h2>
+        <h2>One interface, two native applications</h2>
         <p>
-          Every machine uses the same application. The local device role determines whether business
-          commands execute locally or travel to the master. The renderer has no direct filesystem or
-          Node.js access.
+          The Windows application and Android client share React workspaces and TypeScript
+          contracts. A platform adapter selects the local capabilities; business calculations and
+          persistence remain on the standalone Windows computer or Windows master. Android has no
+          independent order database or offline write queue.
+        </p>
+        <div class="diagram">
+          <svg
+            viewBox="0 0 1060 530"
+            xmlns="http://www.w3.org/2000/svg"
+            role="img"
+            aria-labelledby="mobile-title mobile-desc"
+          >
+            <title id="mobile-title">
+              Shared React interface and Windows and Android platform boundaries
+            </title>
+            <desc id="mobile-desc">
+              Shared React workspaces call one typed platform API. Windows uses Electron preload and
+              main to reach its business service. Android uses a TypeScript adapter and a native
+              Capacitor bridge with Keystore storage, private LAN requests, printing and sharing.
+              Android sends authenticated commands to the Windows master, which owns the JSON ledger
+              and returns authoritative snapshots.
+            </desc>
+            <defs>
+              <marker
+                id="mobile-arrow"
+                markerWidth="10"
+                markerHeight="8"
+                refX="9"
+                refY="4"
+                orient="auto-start-reverse"
+              >
+                <path d="M0 0L10 4L0 8Z" fill="#087d75" />
+              </marker>
+            </defs>
+            <g font-family="Segoe UI,sans-serif">
+              <rect x="170" y="20" width="720" height="85" rx="14" fill="#143d3b" />
+              <text x="195" y="54" font-size="21" font-weight="650" fill="white">
+                Shared React workspaces + typed platform API
+              </text>
+              <text x="195" y="84" font-size="16" fill="#d4e8e3">
+                Menu · Current order · Orders · Inventory · Configuration · Audit
+              </text>
+              <path
+                d="M320 109V143"
+                stroke="#087d75"
+                stroke-width="2"
+                marker-end="url(#mobile-arrow)"
+              />
+              <path
+                d="M740 109V143"
+                stroke="#087d75"
+                stroke-width="2"
+                marker-end="url(#mobile-arrow)"
+              />
+              <rect
+                x="40"
+                y="150"
+                width="460"
+                height="115"
+                rx="14"
+                fill="#e2f1eb"
+                stroke="#92bfb2"
+              />
+              <text x="62" y="185" font-size="20" fill="#075e58" font-weight="650">
+                Windows · Electron adapter
+              </text>
+              <text x="62" y="214" font-size="15" fill="#52686d">
+                Context-isolated preload → trusted main process
+              </text>
+              <text x="62" y="242" font-size="15" fill="#52686d">
+                Local service · Windows print · Help · Backups
+              </text>
+              <rect
+                x="560"
+                y="150"
+                width="460"
+                height="115"
+                rx="14"
+                fill="#e2f1eb"
+                stroke="#92bfb2"
+              />
+              <text x="582" y="185" font-size="20" fill="#075e58" font-weight="650">
+                Android · Capacitor adapter
+              </text>
+              <text x="582" y="214" font-size="15" fill="#52686d">
+                Keystore-backed pairing · Native private-LAN requests
+              </text>
+              <text x="582" y="242" font-size="15" fill="#52686d">
+                System print · CSV sharing · Background admin lock
+              </text>
+              <path
+                d="M270 269V352"
+                stroke="#087d75"
+                stroke-width="2"
+                marker-end="url(#mobile-arrow)"
+              />
+              <path
+                d="M790 269V306H550V352"
+                stroke="#087d75"
+                stroke-width="2"
+                fill="none"
+                marker-end="url(#mobile-arrow)"
+              />
+              <text x="580" y="332" font-size="13" fill="#52686d">
+                Signed commands ⇄ authoritative snapshots
+              </text>
+              <rect x="130" y="360" width="800" height="130" rx="14" fill="#143d3b" />
+              <text x="155" y="396" font-size="21" fill="white" font-weight="650">
+                Windows master · One authoritative business service
+              </text>
+              <text x="155" y="427" font-size="16" fill="#d4e8e3">
+                Prices · Tax · Permissions · Revisions · Orders · Inventory · Reports
+              </text>
+              <text x="155" y="458" font-size="16" fill="#d4e8e3">
+                Recoverable JSON files + NDJSON events · %USERPROFILE%\.openpos
+              </text>
+            </g>
+          </svg>
+        </div>
+        <p>
+          The native Android bridge does not return the saved connection key to React. Saving
+          connection settings always requires explicit key re-entry; ordinary business changes
+          continue to use master administrator authorization. Generic HTTP and WebView path mutation
+          bridges are disabled, and only bundled resources may load in the WebView. It restricts
+          transport to the configured private IPv4 master, signs requests and uses the existing
+          replay-checked protocol. HTTP transport remains unencrypted. Android stores pairing data
+          locally; its business state comes from the master. Local-network authentication does not
+          imply safe internet exposure.
+        </p>
+      </section>
+      <section>
+        <h2>Inside one Windows installation</h2>
+        <p>
+          Every Windows machine uses the same installer. The local device role determines whether
+          business commands execute locally or travel to the master. The renderer has no direct
+          filesystem or Node.js access.
         </p>
         <div class="diagram">
           <svg
@@ -231,7 +364,7 @@
                 <td>
                   Search, selection, accessible controls, form state, draft order, user feedback.
                 </td>
-                <td>Direct disk access, secrets, privileged Electron APIs.</td>
+                <td>Direct disk access, persisted connection secrets, privileged Electron APIs.</td>
               </tr>
               <tr>
                 <td>Preload bridge</td>
@@ -245,6 +378,17 @@
                   launch, store and sync coordination.
                 </td>
                 <td>Credit-card handling, OS user management.</td>
+              </tr>
+              <tr>
+                <td>Android adapter + native bridge</td>
+                <td>
+                  Device pairing, Keystore-backed encrypted connection storage, signed private-LAN
+                  requests, background admin lock, printing and file sharing.
+                </td>
+                <td>
+                  Standalone business ledger, offline mutation queue, master hosting, Windows file
+                  maintenance.
+                </td>
               </tr>
               <tr>
                 <td>Domain engine</td>
@@ -317,10 +461,18 @@
           creation in an elevated installer account.
         </p>
         <p>
-          The packaged help document and its stylesheet are copied into the build. This architecture
-          document, implementation notes, acceptance mapping, original brief and sales sheet remain
-          in the source repository. The standalone application does not load remote web assets to
-          render its interface.
+          A separate Webpack target produces <code>dist/android</code> from the shared renderer and
+          Android adapter. Capacitor sync copies those assets into <code>apps/android</code>. Gradle
+          produces a debug APK or an unsigned release AAB; an explicit signed-bundle command
+          requires externally supplied upload credentials. Android distribution through Google Play
+          is a later account/release step, with no public-repository signing secrets or automatic
+          upload required for builds.
+        </p>
+        <p>
+          The packaged help document and its stylesheet are copied into both builds. This
+          architecture document, implementation notes, acceptance mapping, original brief and sales
+          sheet remain in the source repository. The standalone application does not load remote web
+          assets to render its interface.
         </p>
       </section>
     </div>

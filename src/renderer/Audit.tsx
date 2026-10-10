@@ -85,14 +85,16 @@ export function Audit({ snapshot }: { snapshot: Snapshot }) {
           <h1>Sales at a glance</h1>
           <p>Completed orders, clear insights.</p>
         </div>
-        <button
-          className="secondary"
-          onClick={exportReport}
-          disabled={!report || busy || exporting}
-        >
-          <I path={mdiDownload} size={0.85} />
-          {exporting ? 'Exporting…' : 'Export report'}
-        </button>
+        {window.openpos.capabilities?.exportAudit !== false && (
+          <button
+            className="secondary"
+            onClick={exportReport}
+            disabled={!report || busy || exporting}
+          >
+            <I path={mdiDownload} size={0.85} />
+            {exporting ? 'Exporting…' : 'Export report'}
+          </button>
+        )}
       </div>
       <div className="audit-filters">
         <div className="date-fields">

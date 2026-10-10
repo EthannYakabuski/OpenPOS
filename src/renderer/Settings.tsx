@@ -15,13 +15,17 @@ export function Settings({
   snapshot,
   initialTab = 'business',
   onClose,
+  onConnection,
   onSaved
 }: {
   snapshot: Snapshot;
   initialTab?: 'business' | 'device' | 'security';
   onClose: () => void;
+  onConnection?: () => void;
   onSaved: (snapshot: Snapshot) => void;
 }) {
+  const android = window.openpos.platform === 'android';
+  const capabilities = window.openpos.capabilities;
   const [tab, setTab] = useState(initialTab);
   const [config, setConfig] = useState<BusinessConfig>(structuredClone(snapshot.state.config));
   const [device, setDevice] = useState<DeviceConfig>(structuredClone(snapshot.device));
@@ -203,7 +207,7 @@ export function Settings({
             {notice}
           </div>
         )}
-        {tab !== 'security' && !snapshot.session.isAdmin ? (
+        {tab !== 'security' && !(android && tab === 'device') && !snapshot.session.isAdmin ? (
           <div className="locked-panel">
             <I path={mdiShieldLockOutline} size={2} />
             <h3>Administrator controls are locked</h3>
@@ -339,57 +343,85 @@ export function Settings({
                 </div>
               ))}
             </section>
-            <section className="editor-section">
-              <h3>Business data</h3>
-              <p className="muted">
-                JSON data is stored at <code className="path-text">{snapshot.dataPath}</code>. Make
-                a backup before editing files manually.
-              </p>
-              <div className="button-row">
+            {(capabilities?.dataFolder !== false || capabilities?.backup !== false) && (
+              <section className="editor-section">
+                <h3>Business data</h3>
+                <p className="muted">
+                  JSON data is stored at <code className="path-text">{snapshot.dataPath}</code>.
+                  Make a backup before editing files manually.
+                </p>
+                <div className="button-row">
+                  {capabilities?.dataFolder !== false && (
+                    <button
+                      type="button"
+                      className="secondary"
+                      disabled={busy}
+                      onClick={() => action(() => window.openpos.openDataFolder())}
+                    >
+                      <I path={mdiFolderOpenOutline} size={0.85} /> Open data folder
+                    </button>
+                  )}
+                  {capabilities?.backup !== false && (
+                    <button
+                      type="button"
+                      className="secondary"
+                      disabled={busy}
+                      onClick={() => action(() => window.openpos.backup())}
+                    >
+                      <I path={mdiBackupRestore} size={0.85} /> Create backup
+                    </button>
+                  )}
+                </div>
+              </section>
+            )}
+            {!android && (
+              <section className="editor-section">
+                <h3>Begin a new sales ledger</h3>
+                <p className="muted">
+                  When you are ready to leave the demonstration behind, start fresh. This creates a
+                  backup, clears all orders and inventory movements, and sets every inventory
+                  quantity to zero. Your menu and configuration stay in place. Receive your real
+                  stock before trading.
+                </p>
+                <Field label="Type START FRESH to confirm">
+                  <input
+                    value={resetPhrase}
+                    onChange={(event) => setResetPhrase(event.target.value)}
+                    autoComplete="off"
+                    placeholder="START FRESH"
+                  />
+                </Field>
                 <button
                   type="button"
-                  className="secondary"
-                  disabled={busy}
-                  onClick={() => action(() => window.openpos.openDataFolder())}
+                  className="danger-button"
+                  disabled={busy || resetPhrase !== 'START FRESH'}
+                  onClick={startFresh}
                 >
-                  <I path={mdiFolderOpenOutline} size={0.85} /> Open data folder
+                  Start fresh
                 </button>
-                <button
-                  type="button"
-                  className="secondary"
-                  disabled={busy}
-                  onClick={() => action(() => window.openpos.backup())}
-                >
-                  <I path={mdiBackupRestore} size={0.85} /> Create backup
-                </button>
-              </div>
-            </section>
-            <section className="editor-section">
-              <h3>Begin a new sales ledger</h3>
-              <p className="muted">
-                When you are ready to leave the demonstration behind, start fresh. This creates a
-                backup, clears all orders and inventory movements, and sets every inventory quantity
-                to zero. Your menu and configuration stay in place. Receive your real stock before
-                trading.
-              </p>
-              <Field label="Type START FRESH to confirm">
-                <input
-                  value={resetPhrase}
-                  onChange={(event) => setResetPhrase(event.target.value)}
-                  autoComplete="off"
-                  placeholder="START FRESH"
-                />
-              </Field>
-              <button
-                type="button"
-                className="danger-button"
-                disabled={busy || resetPhrase !== 'START FRESH'}
-                onClick={startFresh}
-              >
-                Start fresh
-              </button>
-            </section>
+              </section>
+            )}
           </form>
+        ) : tab === 'device' && android ? (
+          <section className="connection-summary">
+            <h3>This phone or tablet</h3>
+            <p>
+              <strong>{snapshot.device.deviceName}</strong>
+            </p>
+            <p>
+              Connected to the Windows primary device. Business data and backups stay on Windows.
+            </p>
+            <p className="muted path-text">
+              {snapshot.device.serverUrl || 'No primary device configured'}
+            </p>
+            <button className="primary" onClick={onConnection}>
+              Connection settings
+            </button>
+            <p className="muted">
+              Connection settings are always available, including while offline. Changes require
+              administrator access or re-pairing with the full connection key.
+            </p>
+          </section>
         ) : tab === 'device' ? (
           <form id="settings-form" onSubmit={submit}>
             <div className="form-grid">
@@ -596,12 +628,19 @@ export function Settings({
             </div>
             {!snapshot.session.passwordSet && (
               <div className="notice">
-                Set an administrator password before using OpenPOS in your business. Until then,
-                administrator controls are available.
+                {android
+                  ? 'Set the administrator password on your Windows primary device before connecting Android.'
+                  : 'Set an administrator password before using OpenPOS in your business. Until then, administrator controls are available.'}
               </div>
             )}
             <form id="security-form" onSubmit={security}>
-              {snapshot.session.isAdmin ? (
+              {snapshot.session.isAdmin && android ? (
+                <p>
+                  Use Configuration → Security on the Windows primary device to change the
+                  administrator password. Android locks administrator access when the app goes into
+                  the background.
+                </p>
+              ) : snapshot.session.isAdmin ? (
                 <>
                   <h3>
                     {snapshot.session.passwordSet
@@ -650,6 +689,8 @@ export function Settings({
                   <h3>Unlock administrator</h3>
                   <p className="muted">
                     Unlock Audit, menu editing, inventory and configuration on this device.
+                    {android &&
+                      ' Enter the administrator password from the Windows primary device.'}
                   </p>
                   <Field label="Administrator password">
                     <input
@@ -661,7 +702,11 @@ export function Settings({
                       onChange={(event) => setPassword(event.target.value)}
                     />
                   </Field>
-                  <button type="submit" className="primary" disabled={busy}>
+                  <button
+                    type="submit"
+                    className="primary"
+                    disabled={busy || (android && !snapshot.sync.connected)}
+                  >
                     {busy ? 'Unlocking…' : 'Unlock administrator'}
                   </button>
                 </>
@@ -692,7 +737,7 @@ export function Settings({
         <button className="secondary" disabled={busy} onClick={onClose}>
           Close
         </button>
-        {tab !== 'security' && snapshot.session.isAdmin && (
+        {tab !== 'security' && !(android && tab === 'device') && snapshot.session.isAdmin && (
           <button type="submit" form="settings-form" className="primary" disabled={busy}>
             {busy ? 'Saving…' : 'Save configuration'}
           </button>

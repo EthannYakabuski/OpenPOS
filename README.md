@@ -6,7 +6,7 @@
 
 ![OpenPOS menu and current order on Windows](docs/assets/openpos-menu.png)
 
-An open-source, touch-friendly Windows order application for independent pizza shops, takeout restaurants and small retailers. Take an order, choose sizes, add fees, print its receipt and keep a kitchen screen up to date over your private network.
+An open-source, touch-friendly order application for independent pizza shops, takeout restaurants and small retailers. Run the shop on Windows and connect Android tablets or phones over your private network. Take an order, choose sizes, add fees, print its receipt and keep a kitchen screen up to date.
 
 | 🍕 Serve your menu               | 🧾 Keep service moving                      | 📊 Understand the day                  |
 | -------------------------------- | ------------------------------------------- | -------------------------------------- |
@@ -15,6 +15,8 @@ An open-source, touch-friendly Windows order application for independent pizza s
 | Optional ingredient recipes      | Printable receipts and retail auto-complete | Stock receiving and movement reporting |
 
 **Your business, your setup:** configurable tax, fees, currency and receipt details; password-protected administration; readable local JSON data; backup/export tools; and the same installer for counter and kitchen devices.
+
+**More screens, one shop:** the Android app reuses the React interface. Tablets can take and complete orders; owners can update menus and settings from a phone while connected to the shop's Windows master. Android is a connected client, not a standalone or cloud-hosted replacement for the master.
 
 [Visual product overview](docs/sales.html) · [Business handbook](docs/help.html) · [Architecture](docs/architecture.html) · [Implementation decisions](docs/implementation.html) · [Acceptance map](docs/acceptance.html)
 
@@ -73,9 +75,27 @@ Keep GitHub-hosted Windows runners for public pull-request CI. A persistent self
 
 References: [Electron Builder 26 publishing policy](https://www.electron.build/v26/docs/publish/), [GitHub token permissions](https://docs.github.com/en/actions/tutorials/authenticate-with-github_token), and [GitHub runner security guidance](https://docs.github.com/en/actions/reference/security/secure-use).
 
+## Build the Android application
+
+The same repository contains a **Capacitor Android app** in `apps/android`. Its web interface is built from the shared React source; a native adapter handles connection credentials, authenticated requests, printing and file sharing. Windows keeps its existing Electron build and local data engine.
+
+Install Android Studio, **JDK 21**, Android SDK platform **36**, and Build Tools **36.0.0**, then follow the complete [Android development and release guide](docs/android.md). Android **8.0 / API 26 or newer** is the app's minimum target. From the repository root:
+
+```powershell
+yarn build:android       # Compile the Android web assets
+yarn android:sync        # Rebuild assets and synchronize the native project
+yarn android:open        # Open the native project in Android Studio
+yarn android:apk         # Build a debug APK for device testing
+yarn android:bundle      # Build an unsigned release AAB without secrets
+```
+
+The debug APK is `apps/android/app/build/outputs/apk/debug/app-debug.apk`. The release bundle is `apps/android/app/build/outputs/bundle/release/app-release.aab`. An **AAB is an upload format, not a file customers install directly**. Once signed and published through your Play Console account, Google Play delivers the app normally to customers; they do not need to sideload it. [Android App Bundle documentation](https://developer.android.com/guide/app-bundle)
+
+`yarn android:bundle:signed` requires an upload keystore and signing environment variables described in the guide. **The default unsigned bundle and unsigned CI artifact are not ready for Play upload.** No signing key, Google service account or automatic Play publication is included. Play account setup, Play App Signing, listing, privacy/Data safety declarations, policy review and physical-device validation remain release work. Confirm the initial application ID `org.openpos.mobile` before the first Play publication; preserve the published ID and increase the version code for future updates.
+
 ## Verify changes
 
-The initial Windows build passed **41 unit/integration tests and all 6 desktop workflows against the packaged executable**. See the [verification record](docs/verification.html) for scope and hardware checks still needed before live use.
+The initial Windows build passed **41 unit/integration tests and all 6 desktop workflows against the packaged executable**. The Android extension passed **49 shared unit/integration tests and 8 native JVM tests**, both production builds, Windows installer and Android APK/AAB generation. All ten interface scenarios were validated across a full run and a targeted rerun after a phone layout fix. The final APK also passed an actual Android emulator pairing/order/completion/admin-lock smoke test against an isolated Windows master. See the [verification record](docs/verification.html#android-october-2026) for exact scope, artifact checksums and physical-hardware checks still needed before live use.
 
 ```powershell
 yarn typecheck
@@ -122,6 +142,12 @@ For one device, keep **Standalone** selected in Configuration. For a private loc
 
 The master owns the shared data. Clients submit authenticated commands and refresh authoritative snapshots; they do not merge independent databases or write offline. Out-of-date edits are rejected for review. Requests are signed and replay-checked, but the transport is **HTTP without encryption**. Keep it on a trusted private network; do not forward the port to the public internet.
 
+### Connect an Android phone or tablet
+
+Set up the Windows master first, including its administrator password and shared connection key. Connect Android to the same private Wi-Fi. The Android pairing screen shows a read-only client identifier: register it on the master, enter the master's private IPv4 HTTP address and connection key on Android, and connect. Use the master's administrator password to unlock menu maintenance, stock, configuration and Audit. Returning from the background requires a fresh administrator unlock. Every save of Android **Connection** settings requires re-entering the full master connection key; it is never displayed from storage. Ordinary business settings use the administrator password and do not require that key.
+
+Phone screens rearrange the same workspaces for a narrow display; tablets retain the spacious ordering layout when room permits. The Windows master validates and persists changes from either device. Android cannot save changes while disconnected. Use Windows for backups, direct JSON editing and the protected Start fresh action. See [phone and tablet setup](docs/help.html#android) for staff instructions.
+
 ## Data and customization
 
 Business files in the active data folder:
@@ -155,19 +181,21 @@ For recovery, use Configuration’s backup action and keep protected dated copie
 src/
   core/       Domain rules, validation, JSON store and demo data
   main/       Electron lifecycle, service, LAN sync, preload and receipts
-  renderer/   React workspaces, dialogs and styling
+  android/    Capacitor adapter and Android startup
+  renderer/   Shared React workspaces, dialogs and styling
   shared/     Typed contracts between processes
+apps/android/ Native Android project and platform bridge
 assets/       Application mark and generated icon resources
 scripts/      Development and asset-generation tooling
 tests/        Unit, integration and desktop workflow checks
 docs/         Business help and source-only project documentation
 ```
 
-TypeScript and React run inside Electron. Webpack bundles the processes and assets. Material Design Icons provide standard UI symbols. Electron Builder produces the NSIS installer. JSON persistence uses serialized updates and recovery for changes spanning orders and inventory; NDJSON keeps structured operational logs. The renderer is isolated from Node and accesses trusted operations through a typed preload bridge.
+TypeScript and React run inside Electron on Windows or Capacitor on Android. Webpack produces separate desktop and Android assets from shared interface and contract source. Material Design Icons provide standard UI symbols. Electron Builder produces the NSIS installer; Android Gradle builds produce APKs and AABs. JSON persistence uses serialized updates and recovery for changes spanning orders and inventory; NDJSON keeps structured operational logs on the Windows master. The renderer is isolated from Node and accesses a small platform API; Android does not run an independent business ledger.
 
 Inventory is deducted on completion, adjusted by the difference when completed orders are edited, and restored when a completed order is cancelled. Saved order lines preserve their price and ingredient snapshots. Audit uses completion dates for sales and actual movement dates for stock activity, in the standalone computer’s or master’s local timezone. The implementation notes explain rounding, reporting, permissions, conflict handling, demo initialization and operational limits.
 
-The GitHub Actions workflow in `.github/workflows/ci.yml` provides automated Windows checks for repository changes. Local verification and physical release checks remain necessary for your target installation.
+The GitHub Actions workflow in `.github/workflows/ci.yml` provides automated Windows checks. `.github/workflows/android.yml` checks Android and uploads an unsigned AAB plus a debug APK under **OpenPOS-Android-unsigned-bundle-and-debug-apk**. Both workflows use hosted runners without release publication. Local verification and physical release checks remain necessary for your target installation.
 
 ## Documentation and project provenance
 
@@ -178,6 +206,7 @@ Open the HTML files in a browser to view their complete styling. Only the handbo
 - [Implementation decisions](docs/implementation.html): assumptions, ambiguity resolution and known limitations.
 - [Acceptance map](docs/acceptance.html): original requirements mapped to features and verification.
 - [Product overview](docs/sales.html): short visual sales sheet for a nontechnical audience.
+- [Android development and release](docs/android.md): native build setup, signed AABs and Play release boundaries.
 - [Original project brief](docs/project-brief.md): preserved request and disclosed assistant/model identity.
 
 Future feature work should update relevant tests, the business handbook, architecture and implementation notes alongside the code. This project is licensed under [Apache License 2.0](LICENSE).

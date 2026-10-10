@@ -23,13 +23,23 @@
     "test:e2e": "playwright test",
     "verify": "yarn typecheck && yarn test && yarn build && yarn test:e2e",
     "pack": "yarn build && electron-builder --win --x64 --dir --publish never",
-    "dist": "yarn build && electron-builder --win nsis --x64 --publish never"
+    "dist": "yarn build && electron-builder --win nsis --x64 --publish never",
+    "build:android": "node scripts/icons.cjs && node scripts/notices.cjs && webpack --mode production --env android",
+    "android:sync": "yarn build:android && cap sync android",
+    "android:open": "yarn android:sync && cap open android",
+    "android:apk": "yarn android:sync && node scripts/android.cjs apk",
+    "android:bundle": "yarn android:sync && node scripts/android.cjs bundle",
+    "android:bundle:signed": "yarn android:sync && node scripts/android.cjs bundle --signed",
+    "test:android": "node scripts/android.cjs test"
   },
   "dependencies": {
     "@mdi/js": "7.4.47",
     "@mdi/react": "1.6.1",
     "react": "19.3.0",
-    "react-dom": "19.3.0"
+    "react-dom": "19.3.0",
+    "@capacitor/core": "8.5.3",
+    "@capacitor/android": "8.5.3",
+    "@capacitor/app": "8.1.2"
   },
   "devDependencies": {
     "@playwright/test": "1.63.0",
@@ -49,6 +59,7 @@
     "vite": "^8.0.0",
     "vitest": "5.0.2",
     "webpack": "5.111.1",
-    "webpack-cli": "7.2.3"
+    "webpack-cli": "7.2.3",
+    "@capacitor/cli": "8.5.3"
   }
 }

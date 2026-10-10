@@ -455,6 +455,75 @@
           </table>
         </div>
       </section>
+      <section id="android-extension">
+        <h2>Android extension · October 9, 2026</h2>
+        <p>
+          The user authorized a Capacitor Android application in the same repository, with an AAB
+          path for later Google Play distribution. These additions extend the Windows brief; they do
+          not replace its data invariants or imply a published app.
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Additional requirement</th>
+                <th>Implementation / verification</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Shared product, reduced platform drift</td>
+                <td>
+                  Shared React workspaces and TypeScript contracts; distinct Electron and Capacitor
+                  adapters. Keep desktop verification passing alongside the Android web build.
+                </td>
+              </tr>
+              <tr>
+                <td>Android phones and tablets</td>
+                <td>
+                  Native project in <code>apps/android</code>, responsive ordering panes, owner
+                  maintenance and staff order flows. Validate touch, keyboard, rotation and
+                  small-screen dialogs on target devices.
+                </td>
+              </tr>
+              <tr>
+                <td>Connected shop data</td>
+                <td>
+                  Read-only device identifier registered on Windows; native signed requests to the
+                  private-LAN master. Verify pairing, master authorization, order propagation, stale
+                  edits, disconnection and background locking. No offline writes or standalone
+                  Android ledger.
+                </td>
+              </tr>
+              <tr>
+                <td>Google Play distribution path</td>
+                <td>
+                  Debug APK for testing and unsigned release AAB by default. Explicit signed-bundle
+                  command consumes external upload credentials. Account, listing, Play App Signing,
+                  privacy declarations, policy review and publication remain owner-managed release
+                  tasks.
+                </td>
+              </tr>
+              <tr>
+                <td>Safe public repository</td>
+                <td>
+                  No upload keystore, signing passwords, Google service credentials or publishing
+                  privileges in pull-request CI. Unsigned artifacts are labeled as build results,
+                  not upload-ready releases.
+                </td>
+              </tr>
+              <tr>
+                <td>Platform-specific maintenance</td>
+                <td>
+                  Windows owns backups, manual data-file editing, password changes and Start fresh.
+                  Android uses system printing and CSV sharing; document and test hardware/platform
+                  limits.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
       <section>
         <h2>Manual release checklist</h2>
         <ol>
@@ -485,6 +554,18 @@
           <li>
             Before a live trading day, use Start fresh, enter opening stock and check tax/fee
             settings with the business owner. Keep a separate backup of the prepared store.
+          </li>
+          <li>
+            On a physical Android phone and tablet, pair with a test Windows master, unlock with the
+            master password, edit settings, place and complete an order, background/resume,
+            lose/recover connectivity, print a receipt and share a CSV. Confirm no protected action
+            remains available after the administrator session locks.
+          </li>
+          <li>
+            Before Play release, confirm the package ID and version code, protect signing
+            credentials, test the signed bundle through a Play testing track, complete current
+            listing/privacy/policy requirements and verify installation and upgrade on intended
+            devices.
           </li>
         </ol>
       </section>

@@ -99,10 +99,12 @@ export function Receipt({
         </div>
       </div>
       <footer className="modal-footer">
-        <button className="secondary" disabled={busy} onClick={print}>
-          <I path={mdiPrinterOutline} size={0.9} />
-          {busy ? 'Printing…' : 'Print receipt'}
-        </button>
+        {window.openpos.capabilities?.print !== false && (
+          <button className="secondary" disabled={busy} onClick={print}>
+            <I path={mdiPrinterOutline} size={0.9} />
+            {busy ? 'Printing…' : 'Print receipt'}
+          </button>
+        )}
         <button className="primary" disabled={busy} onClick={onClose}>
           {justSaved ? 'Next order' : 'Done'}
         </button>

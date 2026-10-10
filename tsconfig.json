@@ -12,5 +12,5 @@
     "noEmit": true,
     "types": ["node", "vitest/globals"]
   },
-  "include": ["src", "tests", "vitest.config.mts", "playwright.config.ts"]
+  "include": ["src", "tests", "vitest.config.mts", "playwright.config.ts", "capacitor.config.ts"]
 }

@@ -20,6 +20,7 @@ export function Cart({
   config,
   busy,
   editingNumber,
+  canSubmit = true,
   onChange,
   onSubmit,
   onClear
@@ -28,6 +29,7 @@ export function Cart({
   config: BusinessConfig;
   busy: boolean;
   editingNumber?: number;
+  canSubmit?: boolean;
   onChange: (draft: OrderDraft) => void;
   onSubmit: () => void;
   onClear: () => void;
@@ -263,7 +265,7 @@ export function Cart({
         </div>
         <button
           className="primary order-button"
-          disabled={busy || !draft.lines.length}
+          disabled={busy || !canSubmit || !draft.lines.length}
           onClick={onSubmit}
         >
           <I path={mdiReceiptTextOutline} size={0.95} />
@@ -277,11 +279,13 @@ export function Cart({
           <I path={mdiArrowRight} size={0.95} />
         </button>
         <p>
-          {draft.expectedRevision !== undefined
-            ? 'Changes are shared with connected devices.'
-            : config.autoCompleteOrders
-              ? 'Orders complete automatically.'
-              : 'Send to the team. Keep things moving.'}
+          {!canSubmit
+            ? 'Reconnect to the primary device to save this order.'
+            : draft.expectedRevision !== undefined
+              ? 'Changes are shared with connected devices.'
+              : config.autoCompleteOrders
+                ? 'Orders complete automatically.'
+                : 'Send to the team. Keep things moving.'}
         </p>
       </footer>
     </aside>

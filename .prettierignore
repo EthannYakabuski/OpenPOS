@@ -11,3 +11,7 @@ playwright-report
 yarn.lock
 LICENSE
 docs/project-brief.md
+apps/android/.gradle/
+apps/android/**/build/
+apps/android/app/src/main/assets/
+apps/android/capacitor-cordova-android-plugins/

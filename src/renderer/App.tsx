@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   mdiViewGridOutline,
   mdiReceiptTextOutline,
@@ -27,10 +27,12 @@ import { Settings } from './Settings';
 import { Orders } from './Orders';
 import { Receipt } from './Receipt';
 import { Audit } from './Audit';
+import { AndroidConnection } from './AndroidConnection';
 
 type Dialog =
   | { kind: 'menu'; item?: MenuItem }
   | { kind: 'inventory' }
+  | { kind: 'connection' }
   | { kind: 'settings'; tab?: 'business' | 'device' | 'security' }
   | { kind: 'variant'; item: MenuItem }
   | { kind: 'receipt'; order: Order; justSaved?: boolean }
@@ -45,6 +47,10 @@ type Dialog =
   | null;
 
 export function App() {
+  const android = window.openpos?.platform === 'android';
+  const [configured, setConfigured] = useState(!android);
+  const [phonePane, setPhonePane] = useState<'menu' | 'cart'>('menu');
+  const wasAdmin = useRef(false);
   const [snapshot, setSnapshot] = useState<Snapshot | null>(null);
   const [tab, setTab] = useState<'menu' | 'orders' | 'audit'>('menu');
   const [draft, setDraft] = useState<OrderDraft>(emptyDraft);
@@ -64,9 +70,11 @@ export function App() {
       try {
         if (!window.openpos)
           throw new Error(
-            'The OpenPOS desktop connection is unavailable. Please open the installed application.'
+            'The OpenPOS connection is unavailable. Please open the installed application.'
           );
         const initial = await window.openpos.getSnapshot();
+        const connection = await window.openpos.getConnection?.();
+        if (active) setConfigured(connection?.configured ?? true);
         if (!active) return;
         setSnapshot(initial);
         setTab(initial.device.defaultTab);
@@ -96,6 +104,19 @@ export function App() {
     const timer = window.setTimeout(() => setToast(''), 5000);
     return () => clearTimeout(timer);
   }, [toast]);
+  useEffect(() => {
+    if (android && wasAdmin.current && !snapshot?.session.isAdmin)
+      setDialog((current) => (current?.kind === 'connection' ? current : null));
+    wasAdmin.current = Boolean(snapshot?.session.isAdmin);
+  }, [snapshot?.session.isAdmin, android]);
+  useEffect(() => {
+    const closePrivateViews = () => {
+      setDialog(null);
+      setTab((current) => (current === 'audit' ? 'menu' : current));
+    };
+    window.addEventListener('openpos:locked', closePrivateViews);
+    return () => window.removeEventListener('openpos:locked', closePrivateViews);
+  }, []);
   const run = async (command: Command): Promise<Snapshot | undefined> => {
     setError('');
     setBusy(true);
@@ -126,7 +147,38 @@ export function App() {
         )}
       </main>
     );
+  const connectionSaved = (next: Snapshot) => {
+    setSnapshot(next);
+    setConfigured(true);
+    setDraft(emptyDraft());
+    setSearch('');
+    setCategory('All items');
+    setPhonePane('menu');
+    setTab(next.device.defaultTab);
+    setDialog(null);
+  };
+  if (android && !configured)
+    return (
+      <main className="android-onboarding">
+        <section className="onboarding-card">
+          <Logo />
+          <h1>Connect to your business</h1>
+          <p className="muted">Your shop, ready on your phone or tablet.</p>
+          <AndroidConnection snapshot={snapshot} onSaved={connectionSaved} />
+          <button
+            className="text-button"
+            onClick={() =>
+              window.openpos.openHelp().catch((caught) => setError(errorMessage(caught)))
+            }
+          >
+            Open the user guide
+          </button>
+          <ErrorText error={error} />
+        </section>
+      </main>
+    );
   const { state, device, session, sync } = snapshot;
+  const offline = device.role === 'client' && !sync.connected;
   const fmt = (value: number) => money(value, state.config.currency);
   const categories = [
     'All items',
@@ -231,6 +283,7 @@ export function App() {
   const editOrder = (order: Order) => {
     const begin = () => {
       setDraft(orderDraft(order));
+      setPhonePane('cart');
       setTab('menu');
       setDialog(null);
       setToast(`Editing order #${order.number}. Save changes when you’re done.`);
@@ -283,7 +336,7 @@ export function App() {
       }
     });
   return (
-    <div className="app-shell">
+    <div className={`app-shell ${android ? 'android-app' : ''}`}>
       <aside className="sidebar">
         <a
           className="brand"
@@ -302,17 +355,29 @@ export function App() {
         </a>
         <div className="workspace-label">WORKSPACE</div>
         <nav aria-label="Main navigation">
-          <button className={tab === 'menu' ? 'active' : ''} onClick={() => setTab('menu')}>
+          <button
+            aria-label="Menu Items"
+            className={tab === 'menu' ? 'active' : ''}
+            onClick={() => setTab('menu')}
+          >
             <I path={mdiViewGridOutline} />
             <span>Menu Items</span>
           </button>
-          <button className={tab === 'orders' ? 'active' : ''} onClick={() => setTab('orders')}>
+          <button
+            aria-label="Orders"
+            className={tab === 'orders' ? 'active' : ''}
+            onClick={() => setTab('orders')}
+          >
             <I path={mdiReceiptTextOutline} />
             <span>Orders</span>
             {progressCount > 0 && <span className="nav-count">{progressCount}</span>}
           </button>
           {session.isAdmin && (
-            <button className={tab === 'audit' ? 'active' : ''} onClick={() => setTab('audit')}>
+            <button
+              aria-label="Audit"
+              className={tab === 'audit' ? 'active' : ''}
+              onClick={() => setTab('audit')}
+            >
               <I path={mdiChartBoxOutline} />
               <span>Audit</span>
             </button>
@@ -323,6 +388,7 @@ export function App() {
             className="admin-control"
             onClick={() => setDialog({ kind: 'settings', tab: 'security' })}
             title="Manage administrator access"
+            aria-label="Manage administrator access"
           >
             <span className="avatar">
               <I path={mdiShieldAccountOutline} size={0.9} />
@@ -361,9 +427,21 @@ export function App() {
             </span>
           </div>
           <div className="toolbar" aria-label="Application tools">
+            {window.openpos.capabilities?.connectionSettings && (
+              <button
+                className="toolbar-button"
+                title="Connect this device to your primary device"
+                aria-label="Connection"
+                onClick={() => setDialog({ kind: 'connection' })}
+              >
+                <I path={sync.connected ? mdiWifi : mdiWifiOff} size={0.85} />
+                <span>Connection</span>
+              </button>
+            )}
             <button
               className="toolbar-button"
               title="Create a menu item"
+              aria-label="Add item"
               onClick={() => adminAction({ kind: 'menu' })}
             >
               <I path={mdiPlus} size={0.8} />
@@ -372,6 +450,7 @@ export function App() {
             <button
               className="toolbar-button"
               title="Receive and manage inventory"
+              aria-label="Inventory"
               onClick={() => adminAction({ kind: 'inventory' })}
             >
               <I path={mdiPackageVariantClosed} size={0.85} />
@@ -380,6 +459,7 @@ export function App() {
             <button
               className="toolbar-button"
               title="Business, device and security settings"
+              aria-label="Configuration"
               onClick={() => setDialog({ kind: 'settings' })}
             >
               <I path={mdiCogOutline} size={0.85} />
@@ -388,6 +468,7 @@ export function App() {
             <button
               className="toolbar-button help"
               title="Open the user guide in your browser"
+              aria-label="Help"
               onClick={() =>
                 window.openpos.openHelp().catch((caught) => setError(errorMessage(caught)))
               }
@@ -397,7 +478,7 @@ export function App() {
             </button>
           </div>
         </header>
-        {!session.passwordSet && (
+        {!session.passwordSet && !android && (
           <div className="setup-banner">
             <span>
               <strong>Make this workspace yours.</strong> Set an administrator password before your
@@ -416,6 +497,14 @@ export function App() {
         {device.role === 'client' && !sync.connected && (
           <div className="warning-banner" role="status">
             {sync.message} Order changes require a connection to the primary device.
+            {android && (
+              <button
+                className="text-button small"
+                onClick={() => setDialog({ kind: 'connection' })}
+              >
+                Connection settings
+              </button>
+            )}
           </div>
         )}
         {error && (
@@ -431,7 +520,20 @@ export function App() {
             </button>
           </div>
         )}
-        <main className={`main-content ${tab === 'menu' ? 'menu-layout' : ''}`}>
+        {tab === 'menu' && (
+          <div className="phone-pane-switch" aria-label="Order workspace">
+            <button aria-pressed={phonePane === 'menu'} onClick={() => setPhonePane('menu')}>
+              <I path={mdiViewGridOutline} size={0.8} /> Menu
+            </button>
+            <button aria-pressed={phonePane === 'cart'} onClick={() => setPhonePane('cart')}>
+              <I path={mdiReceiptTextOutline} size={0.8} /> Current order{' '}
+              <span>{draft.lines.reduce((sum, line) => sum + line.quantity, 0)}</span>
+            </button>
+          </div>
+        )}
+        <main
+          className={`main-content ${tab === 'menu' ? `menu-layout phone-show-${phonePane}` : ''}`}
+        >
           {tab === 'menu' ? (
             <>
               <section className="menu-pane">
@@ -561,6 +663,7 @@ export function App() {
                 draft={draft}
                 config={cartConfig}
                 busy={busy}
+                canSubmit={!offline}
                 editingNumber={editingOrder?.number}
                 onChange={setDraft}
                 onSubmit={saveOrder}
@@ -570,7 +673,7 @@ export function App() {
           ) : tab === 'orders' ? (
             <Orders
               snapshot={snapshot}
-              busy={busy}
+              busy={busy || offline}
               onEdit={editOrder}
               onReceipt={(order) => setDialog({ kind: 'receipt', order })}
               onComplete={complete}
@@ -603,10 +706,26 @@ export function App() {
         <Settings
           snapshot={snapshot}
           initialTab={dialog.tab}
+          onConnection={() => setDialog({ kind: 'connection' })}
           onClose={() => setDialog(null)}
           onSaved={setSnapshot}
         />
       )}{' '}
+      {dialog?.kind === 'connection' && (
+        <Modal
+          title="Connection"
+          subtitle="Saving clears the current unsaved ticket on this device."
+          onClose={() => setDialog(null)}
+        >
+          <div className="modal-body">
+            <AndroidConnection
+              snapshot={snapshot}
+              onSaved={connectionSaved}
+              onUnlock={() => setDialog({ kind: 'settings', tab: 'security' })}
+            />
+          </div>
+        </Modal>
+      )}
       {dialog?.kind === 'receipt' && (
         <Receipt
           order={dialog.order}

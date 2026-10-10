@@ -11,8 +11,9 @@
       <p class="eyebrow">OpenPOS 0.1.0 · Source-only build record</p>
       <h1>Built. Exercised. Inspected.</h1>
       <p>
-        Verification performed on September 30, 2026 against the initial Windows application and
-        installer payload.
+        The initial Windows record from September 30, 2026 is preserved below, followed by the
+        October 9 Android extension verification. Device testing and publication are tracked
+        separately from builds.
       </p>
     </header>
     <nav class="topnav" aria-label="Documentation">
@@ -145,6 +146,159 @@
           results above remain the initial build record rather than a new test-suite run.
         </p>
       </section>
+      <section id="android-october-2026">
+        <h2>Android extension · October 9, 2026</h2>
+        <p>
+          This adds a Capacitor Android client and reuses the existing React interface and Windows
+          business service. Checks use isolated test data; no shop ledger or production signing
+          credential is part of verification. The earlier installer checksum above belongs to the
+          original Windows build.
+        </p>
+        <p id="android-final-status">
+          The final connection-key guard is included in the passing type, business, native and
+          web-build checks. Windows NSIS generation, Android AAB/APK generation and the final
+          Android emulator smoke test passed. Physical shop hardware, private Wi-Fi and Play
+          publication remain separate release validations.
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Check</th>
+                <th>Result and scope</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>TypeScript contracts</td>
+                <td>Passed after the explicit connection-key guard.</td>
+              </tr>
+              <tr>
+                <td>Shared unit and integration tests</td>
+                <td>
+                  49 passed, including eight Android-adapter tests communicating with a real test
+                  Windows master. Covers pairing without demo uploads or exposed secrets,
+                  authoritative pricing and stock, permissions, stale changes, interrupted responses
+                  without write retries, offline rejection, background locking and master restarts.
+                  The final rerun after the connection-key guard passed.
+                </td>
+              </tr>
+              <tr>
+                <td>Production web builds</td>
+                <td>
+                  Windows main/preload/renderer and the Android web target both compiled again with
+                  the final code and bundled handbook.
+                </td>
+              </tr>
+              <tr>
+                <td>Native Java checks</td>
+                <td>
+                  Native compilation and all eight JVM tests passed, covering wire signatures,
+                  response tampering, private-address/route validation, explicit connection-key
+                  entry, bundled-resource restrictions and stylesheet embedding in minified handbook
+                  HTML. JVM checks do not establish Android device runtime behavior.
+                </td>
+              </tr>
+              <tr>
+                <td>Desktop and phone interface workflows</td>
+                <td>
+                  All ten scenarios validated across a full run and a targeted rerun: the full run
+                  passed six Windows workflows and three Android interface workflows; it exposed a
+                  phone checkbox wrapping defect. A scoped CSS fix was applied and that failed
+                  scenario passed on rerun. This was not one fully green combined run. Android
+                  interface checks use an isolated Electron browser host and a stubbed native API,
+                  not an Android device.
+                </td>
+              </tr>
+              <tr>
+                <td>Unsigned AAB and debug APK</td>
+                <td>
+                  Release lint and AAB generation passed; the debug APK also built successfully.
+                  Both archives contain byte-for-byte matches for all ten final Android web build
+                  files, the final Capacitor configuration and native dependency notices. The AAB
+                  has no JAR signature and is unsigned. The APK has a verified Android Debug v2
+                  signature. No production upload key was used.
+                </td>
+              </tr>
+              <tr>
+                <td>Windows NSIS regression build</td>
+                <td>
+                  Passed with publishing disabled. Output was isolated at
+                  <code>.cache/windows-android-verification/OpenPOS-0.1.0-Setup-x64.exe</code>,
+                  preserving the original release directory. The 111,320,829-byte installer is
+                  unsigned (Authenticode: NotSigned). Archive inspection confirmed the updated
+                  handbook and local stylesheet, with the Android web bundle and developer documents
+                  excluded.
+                </td>
+              </tr>
+              <tr>
+                <td>Actual Android emulator runtime</td>
+                <td>
+                  The final debug APK was installed on the official API 35 emulator image with
+                  WebView 124. Its native client ID survived force-stop/relaunch and APK update. The
+                  app paired through the native signed protocol with an isolated real Windows master
+                  and loaded its catalog and tax. Android order #008 saved a Snickers item at 199
+                  cents plus 26 cents tax, totaling 225 cents, verified in the master's
+                  <code>orders.json</code>. Completing it changed status to completed and stock from
+                  28 to 27. Administrator unlock exposed editable configuration and the real master
+                  Audit report; Home/resume returned to staff/Menu and hid Audit. Actual onboarding
+                  and current-order screenshots were inspected for safe areas and layout.
+                </td>
+              </tr>
+              <tr>
+                <td>Android runtime and hardware</td>
+                <td>
+                  Physical Android runtime, private Wi-Fi pairing, real printing, external file
+                  handlers, installation and upgrade have not been validated on customer hardware.
+                </td>
+              </tr>
+              <tr>
+                <td>Documentation</td>
+                <td>
+                  Updated local HTML links and anchors checked; the shared-platform diagram and the
+                  Android handbook at 390px visually inspected without horizontal overflow.
+                  Documentation formatting and scoped whitespace checks passed.
+                </td>
+              </tr>
+              <tr>
+                <td>Play publication and signing</td>
+                <td>
+                  No production-signed AAB or live Play listing. Upload signing, account
+                  configuration, Play App Signing, declarations and release-track testing remain
+                  owner-managed release steps.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <h3>Android artifacts from the final build</h3>
+        <p>
+          Unsigned release bundle:
+          <code>apps/android/app/build/outputs/bundle/release/app-release.aab</code> (4,225,905
+          bytes).
+        </p>
+        <pre><code>b8db6ff956f133cbda8da75080234564fc55106ef166dfc1ccde00cf746a03cc</code></pre>
+        <p>
+          Debug APK: <code>apps/android/app/build/outputs/apk/debug/app-debug.apk</code> (7,147,541
+          bytes).
+        </p>
+        <pre><code>1ee4c8a0deb90330e27dbfd513e617350c95be9b527ee478ecdbf2446e5e2af4</code></pre>
+        <p>
+          These are SHA-256 checksums for this build; rebuilding can change them. The unsigned AAB
+          requires a signed rebuild with the publisher’s upload key before Play submission. The
+          debug APK is for testing, not production release. Archive checks also confirmed logging
+          disabled, WebView debugging disabled, mixed-content loading disabled and minimum WebView
+          version 111. The bundled native notice inventory covers 50 resolved runtime coordinates.
+        </p>
+        <p>October 9 Windows installer SHA-256:</p>
+        <pre><code>157db4400ce7e967827861335fd46e76f70a772eb04e33d79b732f2a6f247fab</code></pre>
+        <p>
+          Android build settings: application ID <code>org.openpos.mobile</code>, minimum API 26,
+          target/compile API 36, JDK 21, Gradle 8.14.3 and Android Gradle Plugin 8.13.0. The Android
+          application needs the Windows master on a trusted private network; builds do not establish
+          standalone or remote cloud operation.
+        </p>
+      </section>
       <section>
         <h2>Before a live deployment</h2>
         <ul>
@@ -176,6 +330,6 @@
         </p>
       </section>
     </main>
-    <footer>OpenPOS · Initial build verification · Apache License 2.0</footer>
+    <footer>OpenPOS · Windows and Android verification record · Apache License 2.0</footer>
   </body>
 </html>
